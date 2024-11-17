@@ -21,7 +21,7 @@ const Home = () => {
                 className="absolute top-0 left-0 w-full h-full object-cover -z-10"
             />
 
-            <div className="bg-gray-300 bg-opacity-90 px-6 py-2 relative z-10">
+            <div className="bg-gray-300 bg-opacity-90 px-6 py-2 relative z-50">
                 <div className="flex items-center justify-between w-full">
                     <div className="text-xl font-semibold">Alumni Portal</div>
                     <button
