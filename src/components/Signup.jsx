@@ -6,6 +6,8 @@ import VisibilityOff from '@mui/icons-material/VisibilityOff';
 import logo from "../assets/googlelogo.png";
 import LocalPhoneIcon from '@mui/icons-material/LocalPhone';
 import { useNavigate } from 'react-router-dom';
+import img from "../assets/image-1.png"
+import icon1 from "../assets/Group.png"
 
 const SignUp = () => {
 
@@ -29,74 +31,123 @@ const SignUp = () => {
 
 
     return (
-        <div className="w-full h-full">
-            <div className="w-full max-h-screen h-full relative">
-                <div className="absolute top-8 right-8 flex items-center gap-8">
-                    <div className="font-medium">Have an account?</div>
-                    <div className="font-medium text-blue-600 hover:underline cursor-pointer" onClick={SignIn}>Sign In</div>
+        <div className="w-full h-screen flex flex-col">
+            <div className="w-full h-full relative flex flex-col">
+                <div className="absolute top-8 right-8 flex items-center gap-4">
+                    <div className="font-[300] font-inter text-[14px]">have an account?</div>
+                    <div className="font-[300] font-inter text-[14px] text-blue-600 hover:underline cursor-pointer" onClick={SignIn}>Sign In</div>
                 </div>
-                <div className="flex items-center justify-between w-full h-full">
-                    <div className="relative w-[50%] h-screen object-cover flex-shrink-0 md:flex hidden">
+                <div className="flex flex-col md:flex-row items-center justify-between w-full h-full">
+                    <div className="relative max-w-2xl w-full h-full flex-shrink-0 hidden md:flex">
                         <img
-                            src="https://media.licdn.com/dms/image/v2/C4E1BAQG3ZvjGd_5pAw/company-background_10000/company-background_10000/0/1632137816387/gbucrc_cover?e=2147483647&v=beta&t=eGPzVHgG6aYyJ43GGD1yzsMMU79tiroXlmNHXcpJVn0"
+                            src={img}
                             alt=""
-                            className="w-full h-full object-cover"
+                            className="w-full h-full object-fill"
                         />
-                        <div className="absolute top-2/4 left-10 transform -translate- -translate-y-1/2 md:flex flex-col items-center gap-4 hidden">
-                            <div className="w-full p-2 rounded-full bg-blue-600 text-white flex items-center gap-4 max-w-[250px]">
-                                <ControlPointIcon className="text-lg text-white" />
-                                <div className="font-medium text-nowrap">Safety and Convenience</div>
+                        <div className="absolute top-64 left-10 transform -translate-y-1/2 md:flex flex-col gap-5 hidden">
+                            <div className="flex items-center space-x-3 px-2 pe-4 py-2 rounded-full bg-purple-700 text-white focus:outline-none bg-purple z-10 w-max">
+                                <div className="relative flex justify-center items-center w-8 h-8 rounded-full">
+                                    <div className="absolute inset-0 backdrop-blur-3xl bg-white rounded-2xl opacity-40 z-[-10]" />
+                                    <svg
+                                        xmlns="http://www.w3.org/2000/svg"
+                                        fill="#FFFFFF"
+                                        viewBox="0 0 24 24"
+                                        strokeWidth="2"
+                                        stroke="#FFFFFF"
+                                        className="w-5 h-5 relative z-50"
+                                    >
+                                        <path
+                                            strokeLinecap="round"
+                                            strokeLinejoin="round"
+                                            d="M13 10V3L4 14h7v7l9-11h-7z"
+                                        />
+                                    </svg>
+                                </div>
+                                <span className="font-[400] font-inter text-[14px]">Stay Inspired</span>
                             </div>
-                            <div className="w-full p-2 rounded-2xl bg-blue-600 text-white flex items-start gap-4 max-w-[250px]">
-                                <CopyAllIcon className="text-[40px] text-white" />
-                                <div className="font-medium">Lorem ipsum dolor sit amet consectetur adipisicing elit. Nobis!</div>
+                            <div className="relative rounded-2xl w-52 p-4 mx-6">
+                                <div className="absolute inset-0 backdrop-blur-xl bg-black/40 rounded-2xl z-[-10]" />
+                                <div className="relative flex justify-center items-center w-8 h-8 rounded">
+                                    <div className="absolute inset-0 backdrop-blur-xl bg-white/40 rounded-lg z-[-10]" />
+                                    <svg
+                                        xmlns="http://www.w3.org/2000/svg"
+                                        fill="#FFFFFF"
+                                        viewBox="0 0 24 24"
+                                        strokeWidth="2"
+                                        stroke="#FFFFFF"
+                                        className="w-5 h-5 relative z-50"
+                                    >
+                                        <path
+                                            strokeLinecap="round"
+                                            strokeLinejoin="round"
+                                            d="M13 10V3L4 14h7v7l9-11h-7z"
+                                        />
+                                    </svg>
+                                </div>
+                                <div className="font-inter font-[400] text-white mt-3 leading-tight">Reconnect, Relive Reimagine</div>
                             </div>
                         </div>
-                        <div className="absolute bottom-8 right-8 w-full p-2 rounded-full bg-blue-600 text-white md:flex items-center gap-4 max-w-[250px] hidden">
-                            <ControlPointIcon className="text-lg text-white" />
-                            <div className="font-medium text-nowrap">Safety and Convenience</div>
+                        <div className="space-x-3 bg-purple-700 text-white focus:outline-none bg-black z-10 w-max absolute bottom-28 right-10 px-2 pe-4 py-2 rounded-full md:flex items-center hidden">
+                            <div className="relative flex justify-center items-center w-8 h-8 rounded-full">
+                                <div className="absolute inset-0 backdrop-blur-3xl bg-white rounded-2xl opacity-40 z-[-10]" />
+                                <svg
+                                    xmlns="http://www.w3.org/2000/svg"
+                                    fill="#FFFFFF"
+                                    viewBox="0 0 24 24"
+                                    strokeWidth="2"
+                                    stroke="#FFFFFF"
+                                    className="w-5 h-5 relative z-50"
+                                >
+                                    <path
+                                        strokeLinecap="round"
+                                        strokeLinejoin="round"
+                                        d="M13 10V3L4 14h7v7l9-11h-7z"
+                                    />
+                                </svg>
+                            </div>
+                            <span className="font-[400] font-inter text-[14px]">Stay Connected</span>
                         </div>
                     </div>
-                    <div className="w-full h-full flex justify-center items-center md:mt-10 mt-24">
-                        <div className="flex flex-col gap-6 w-full md:mx-40 mx-10 h-full">
+                    <div className="flex items-center justify-center max-w-md mx-auto w-full h-screen">
+                        <div className="flex flex-col gap-8 pt-8 w-full md:px-0 px-5">
                             <div>
-                                <div className="text-2xl font-semibold text-center">
+                                <div className="text-[24px] text-center font-[600] font-inter">
                                     Begin Your Journey With Us Today
                                 </div>
-                                <div className="text-lg text-gray-600 text-center mt-1">
-                                    Lorem ipsum dolor sit.
+                                <div className="font-inter font-[400] text-[15px] text-center text-light">
+                                    Getting started is easy
                                 </div>
                             </div>
                             <div className="flex flex-col items-center gap-4 w-full">
                                 <div className="flex items-center gap-4 w-full justify-center">
-                                    <button className="px-6 py-2 border border-gray-300 focus:border-gray-700 rounded-lg flex items-center gap-3 h-10">
-                                        <div className='w-6 object-cover flex-shrink-0'><img src={logo} alt='' className='w-full h-full object-cover' /></div>Google
-                                    </button>
-                                    <button className="px-6 py-2 border border-gray-300 focus:border-gray-700 rounded-lg h-10 flex items-center justify-center gap-3">
-                                        <LocalPhoneIcon className='text-md' /> Phone
+                                    <button className="px-6 py-2 border border-gray-300 rounded-lg flex items-center gap-4 w-full justify-center">
+                                        <div className='w-6 object-cover flex-shrink-0'>
+                                            <img src={logo} alt='' className='w-full h-full object-cover' />
+                                        </div>
+                                        Sign in with Google
                                     </button>
                                 </div>
                                 <div className="flex items-center w-full">
                                     <div className="flex-grow border-t border-gray-300"></div>
-                                    <span className="mx-4 text-md text-gray-600 text-center text-nowrap">
+                                    <span className="mx-4 text-[13px] font-[400] font-inter">
                                         Or Continue with
                                     </span>
                                     <div className="flex-grow border-t border-gray-300"></div>
                                 </div>
-                                <div className="flex flex-col items-center gap-4 w-full" >
+                                <div className="flex flex-col items-center gap-4 w-full">
                                     <input
                                         type="text"
                                         name="name"
-                                        placeholder="Enter your name"
-                                        className="p-3 border border-gray-300 focus:border-gray-700 rounded-lg w-full"
+                                        placeholder="Full Name"
+                                        className="p-5 border border-gray-300 focus:border-gray-700 rounded-lg w-full outline-none placeholder:text-[14px] font-inter"
                                         value={formField.name}
                                         onChange={(e) => setFormField({ ...formField, name: e.target.value })}
                                     />
                                     <input
                                         type="text"
                                         name="email"
-                                        placeholder="Enter your Email"
-                                        className="p-3 border border-gray-300 focus:border-gray-700 rounded-lg w-full"
+                                        placeholder="Enter Email"
+                                        className="p-5 border border-gray-300 focus:border-gray-700 rounded-lg w-full outline-none placeholder:text-[14px] font-inter"
                                         value={formField.email}
                                         onChange={(e) => setFormField({ ...formField, email: e.target.value })}
                                     />
@@ -104,8 +155,8 @@ const SignUp = () => {
                                         <input
                                             type={visibility.password ? 'text' : 'password'}
                                             name="password"
-                                            placeholder="Enter your Password"
-                                            className="p-3 border border-gray-300 focus:border-gray-700 rounded-lg w-full"
+                                            placeholder="Password"
+                                            className="p-5 border border-gray-300 focus:border-gray-700 rounded-lg w-full outline-none placeholder:text-[14px] font-inter"
                                             value={formField.password}
                                             onChange={(e) => setFormField({ ...formField, password: e.target.value })}
                                         />
@@ -120,8 +171,8 @@ const SignUp = () => {
                                         <input
                                             type={visibility.confirmPassword ? 'text' : 'password'}
                                             name="confirmPassword"
-                                            placeholder="Enter Confirm Password"
-                                            className="p-3 border border-gray-300 focus:border-gray-700 rounded-lg w-full"
+                                            placeholder="Confirm Password"
+                                            className="p-5 border border-gray-300 focus:border-gray-700 rounded-lg w-full outline-none placeholder:text-[14px] font-inter"
                                             value={formField.confirmPassword}
                                             onChange={(e) => setFormField({ ...formField, confirmPassword: e.target.value })}
                                         />
@@ -132,16 +183,15 @@ const SignUp = () => {
                                             {visibility.confirmPassword ? <VisibilityOff /> : <Visibility />}
                                         </button>
                                     </div>
-                                    <button className="bg-blue-600 text-white p-3 rounded-lg w-full font-medium">
+                                    <button className="bg-purple text-white p-4 rounded-lg w-full font-medium">
                                         Create Account
                                     </button>
                                 </div>
                             </div>
-                            <div>
-                                <div className='text-sm text-gray-600 font-medium text-center'>Lorem ipsum dolor sit amet consectetur adipisicing elit.</div>
-                            </div>
                         </div>
                     </div>
+
+
                 </div>
             </div>
         </div>
