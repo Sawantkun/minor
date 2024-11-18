@@ -1,10 +1,10 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
+import HERO from "../assets/images/banner2.jpg"
 
 const Home = () => {
     const [isMenuOpen, setIsMenuOpen] = useState(false);
     const navigate = useNavigate();
-
     const SignIn = () => {
         navigate("/Login");
     };
@@ -16,12 +16,11 @@ const Home = () => {
     return (
         <div className="w-full min-h-screen flex flex-col relative">
             <img
-                src="https://media.licdn.com/dms/image/v2/C4E1BAQG3ZvjGd_5pAw/company-background_10000/company-background_10000/0/1632137816387/gbucrc_cover?e=2147483647&v=beta&t=eGPzVHgG6aYyJ43GGD1yzsMMU79tiroXlmNHXcpJVn0"
-                alt="Background"
+                src={HERO}
                 className="absolute top-0 left-0 w-full h-full object-cover -z-10"
             />
 
-            <div className="bg-gray-300 bg-opacity-90 px-6 py-2 relative z-10">
+            <div className="bg-gray-300  px-6 py-2 relative z-10">
                 <div className="flex items-center justify-between w-full">
                     <div className="text-xl font-semibold">Alumni Portal</div>
                     <button
@@ -78,7 +77,7 @@ const Home = () => {
                     </div>
                 )}
             </div>
-            <div className="flex-grow flex flex-col items-center justify-center text-center gap-2 md:p-0 p-5 bg-gray-900 bg-opacity-50 z-10">
+            <div className="flex-grow bg-black flex flex-col items-center justify-center text-center gap-2 md:p-0 p-5  bg-opacity-60 z-10">
                 <div className="md:text-[40px] text-[35px] font-semibold text-white">
                     Join A Network That Lasts a Lifetime
                 </div>

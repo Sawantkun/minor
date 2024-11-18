@@ -6,6 +6,7 @@ import VisibilityOff from '@mui/icons-material/VisibilityOff';
 import logo from "../assets/googlelogo.png";
 import LocalPhoneIcon from '@mui/icons-material/LocalPhone';
 import { useNavigate } from 'react-router-dom';
+import BUDDHA from "../assets/images/image.png"
 
 const Login = () => {
 
@@ -38,9 +39,9 @@ const Login = () => {
                 <div className="flex items-center justify-between w-full h-full">
                     <div className="relative w-[50%] h-screen object-cover flex-shrink-0 md:flex hidden">
                         <img
-                            src="https://media.licdn.com/dms/image/v2/C4E1BAQG3ZvjGd_5pAw/company-background_10000/company-background_10000/0/1632137816387/gbucrc_cover?e=2147483647&v=beta&t=eGPzVHgG6aYyJ43GGD1yzsMMU79tiroXlmNHXcpJVn0"
+                            src={BUDDHA}
                             alt=""
-                            className="w-full h-full object-cover"
+                            className="w-full h-full object-contain"
                         />
                         <div className="absolute top-2/4 left-10 transform -translate- -translate-y-1/2 md:flex flex-col items-center gap-4 hidden">
                             <div className="w-full p-2 rounded-full bg-blue-600 text-white flex items-center gap-4 max-w-[250px]">

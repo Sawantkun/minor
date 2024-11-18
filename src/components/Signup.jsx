@@ -38,7 +38,7 @@ const SignUp = () => {
                 <div className="flex items-center justify-between w-full h-full">
                     <div className="relative w-[50%] h-screen object-cover flex-shrink-0 md:flex hidden">
                         <img
-                            src="https://media.licdn.com/dms/image/v2/C4E1BAQG3ZvjGd_5pAw/company-background_10000/company-background_10000/0/1632137816387/gbucrc_cover?e=2147483647&v=beta&t=eGPzVHgG6aYyJ43GGD1yzsMMU79tiroXlmNHXcpJVn0"
+                            src="https://images.squarespace-cdn.com/content/v1/6213c340453c3f502425776e/1722636479289-OH0D6P61UQYXJ027RBA8/unsplash-image-nHFczgs6ppw.jpg?format=1500w"
                             alt=""
                             className="w-full h-full object-cover"
                         />
