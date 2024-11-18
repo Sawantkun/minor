@@ -1,40 +1,70 @@
 import React, { useState } from 'react';
-import ControlPointIcon from '@mui/icons-material/ControlPoint';
-import CopyAllIcon from '@mui/icons-material/CopyAll';
+import { useNavigate } from 'react-router-dom';
+import logo from "../assets/googlelogo.png";
+import { toast } from 'react-toastify';
+import { signInWithGoogle } from '../firebase'; // Adjust the path if necessary
+import { signInWithEmailAndPassword } from 'firebase/auth';
+import { auth } from '../firebase';
 import Visibility from '@mui/icons-material/Visibility';
 import VisibilityOff from '@mui/icons-material/VisibilityOff';
-import logo from "../assets/googlelogo.png";
-import LocalPhoneIcon from '@mui/icons-material/LocalPhone';
-import { useNavigate } from 'react-router-dom';
 import img from "../assets/image.png"
 
-const Login = () => {
-
-    const [visibility, setVisibility] = useState({
-        password: false,
-        confirmPassword: false,
-    });
-
+const SignIn = () => {
+    const [visibility, setVisibility] = useState(false);
     const [formField, setFormField] = useState({
-        name: "",
         email: "",
         password: "",
-        confirmPassword: ""
     });
 
-    const navigate = useNavigate()
+    const navigate = useNavigate();
 
-    const SignUp = () => {
-        navigate("/SignUp")
+    const handleGoogleSignIn = async () => {
+        try {
+            const user = await signInWithGoogle();
+            console.log(user); // Log the user details if needed
+            toast.success("Signed in with Google successfully!");
+            navigate("/home");
+        } catch (error) {
+            console.error("Google Sign-In Error:", error);
+            toast.error("Google sign-in failed. Please try again.");
+        }
+    };
+
+    const handleSignIn = async (e) => {
+        e.preventDefault();
+
+        // Form validation for required fields
+        if (!formField.email || !formField.password) {
+            toast.error("Please fill all fields.");
+            return;
+        }
+
+        try {
+            // Sign in with Firebase Authentication
+            const userCredential = await signInWithEmailAndPassword(auth, formField.email, formField.password);
+            const user = userCredential.user;
+
+            // Redirect to a different page (e.g., Home page)
+            navigate("/home");
+
+            // Optionally show a success message or save user info in the app
+            toast.success("Signed in successfully!");
+        } catch (error) {
+            // Handle Firebase errors (e.g., wrong password, invalid email)
+            toast.error(error.message);
+        }
     }
 
+    const SignUp = () => {
+        navigate("/signup");
+    }
 
     return (
         <div className="w-full h-screen flex flex-col">
             <div className="w-full h-full relative flex flex-col">
                 <div className="absolute flex items-center justify-end top-8 left-[45%] gap-4">
                     <div className="font-[300] font-inter text-[14px]">Don't have an account?</div>
-                    <div className="font-[300] font-inter text-[14px] text-purple hover:underline cursor-pointer" onClick={SignUp}>Sign In!</div>
+                    <div className="font-[300] font-inter text-[14px] text-purple hover:underline cursor-pointer" onClick={SignUp}>Sign Up</div>
                 </div>
                 <div className="flex flex-col md:flex-row items-center justify-between w-full h-full">
                     <div className="flex items-center justify-center max-w-md mx-auto w-full h-screen">
@@ -49,7 +79,7 @@ const Login = () => {
                             </div>
                             <div className="flex flex-col items-center gap-6 w-full">
                                 <div className="flex items-center gap-4 w-full justify-center">
-                                    <button className="px-6 py-2 border border-gray-300 rounded-lg flex items-center gap-4 w-full justify-center">
+                                    <button onClick={handleGoogleSignIn} className="px-6 py-4 border border-gray-300 rounded-lg flex items-center gap-4 w-full justify-center">
                                         <div className='w-6 object-cover flex-shrink-0'>
                                             <img src={logo} alt='' className='w-full h-full object-cover' />
                                         </div>
@@ -91,7 +121,7 @@ const Login = () => {
                                     <div className=' w-full flex justify-end'>
                                         <a href="" className=' text-[12px] font-[400] font-inter hover:underline'> Forgot Password?</a>
                                     </div>
-                                    <button className="bg-purple text-white p-4 rounded-lg w-full font-medium">
+                                    <button onClick={handleSignIn} className="bg-purple text-white p-4 rounded-lg w-full font-medium">
                                         Login
                                     </button>
                                 </div>
@@ -123,4 +153,4 @@ const Login = () => {
     );
 };
 
-export default Login;
+export default SignIn;
