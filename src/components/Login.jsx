@@ -6,7 +6,7 @@ import VisibilityOff from '@mui/icons-material/VisibilityOff';
 import logo from "../assets/googlelogo.png";
 import LocalPhoneIcon from '@mui/icons-material/LocalPhone';
 import { useNavigate } from 'react-router-dom';
-import BUDDHA from "../assets/images/image.png"
+import img from "../assets/image.png"
 
 const Login = () => {
 
@@ -30,66 +30,45 @@ const Login = () => {
 
 
     return (
-        <div className="w-full h-full">
-            <div className="w-full max-h-screen h-full relative">
-                <div className="absolute top-8 right-8 flex items-center gap-8">
-                    <div className="font-medium">Don't Have an account?</div>
-                    <div className="font-medium hover:underline cursor-pointer text-blue-600" onClick={SignUp}>Sign Up</div>
+        <div className="w-full h-screen flex flex-col">
+            <div className="w-full h-full relative flex flex-col">
+                <div className="absolute flex items-center justify-end top-8 left-[45%] gap-4">
+                    <div className="font-[300] font-inter text-[14px]">Don't have an account?</div>
+                    <div className="font-[300] font-inter text-[14px] text-purple hover:underline cursor-pointer" onClick={SignUp}>Sign In!</div>
                 </div>
-                <div className="flex items-center justify-between w-full h-full">
-                    <div className="relative w-[50%] h-screen object-cover flex-shrink-0 md:flex hidden">
-                        <img
-                            src={BUDDHA}
-                            alt=""
-                            className="w-full h-full object-contain"
-                        />
-                        <div className="absolute top-2/4 left-10 transform -translate- -translate-y-1/2 md:flex flex-col items-center gap-4 hidden">
-                            <div className="w-full p-2 rounded-full bg-blue-600 text-white flex items-center gap-4 max-w-[250px]">
-                                <ControlPointIcon className="text-lg text-white" />
-                                <div className="font-medium text-nowrap">Safety and Convenience</div>
-                            </div>
-                            <div className="w-full p-2 rounded-2xl bg-blue-600 text-white flex items-start gap-4 max-w-[250px]">
-                                <CopyAllIcon className="text-[40px] text-white" />
-                                <div className="font-medium">Lorem ipsum dolor sit amet consectetur adipisicing elit. Nobis!</div>
-                            </div>
-                        </div>
-                        <div className="absolute bottom-8 right-8 w-full p-2 rounded-full bg-blue-600 text-white md:flex items-center gap-4 max-w-[250px] hidden">
-                            <ControlPointIcon className="text-lg text-white" />
-                            <div className="font-medium text-nowrap">Safety and Convenience</div>
-                        </div>
-                    </div>
-                    <div className="w-full h-full flex justify-center items-center md:mt-10 mt-24">
-                        <div className="flex flex-col gap-6 w-full md:mx-40 mx-10 h-full">
+                <div className="flex flex-col md:flex-row items-center justify-between w-full h-full">
+                    <div className="flex items-center justify-center max-w-md mx-auto w-full h-screen">
+                        <div className="flex flex-col gap-8 pt-8 w-full md:px-0 px-5">
                             <div>
-                                <div className="text-2xl font-semibold text-center">
+                                <div className="text-[36px] text-center font-[600] font-inter">
                                     Welcome Back
                                 </div>
-                                <div className="text-lg text-gray-600 text-center mt-1">
-                                    Lorem ipsum dolor sit.
+                                <div className="font-inter font-[400] text-[15px] text-center text-light">
+                                    Login to your account
                                 </div>
                             </div>
-                            <div className="flex flex-col items-center gap-4 w-full">
+                            <div className="flex flex-col items-center gap-6 w-full">
                                 <div className="flex items-center gap-4 w-full justify-center">
-                                    <button className="px-6 py-2 border border-gray-300 focus:border-gray-700 rounded-lg flex items-center gap-3 h-10">
-                                        <div className='w-6 object-cover flex-shrink-0'><img src={logo} alt='' className='w-full h-full object-cover' /></div>Google
-                                    </button>
-                                    <button className="px-6 py-2 border border-gray-300 focus:border-gray-700 rounded-lg h-10 flex items-center justify-center gap-3">
-                                        <LocalPhoneIcon className='text-md' /> Phone
+                                    <button className="px-6 py-2 border border-gray-300 rounded-lg flex items-center gap-4 w-full justify-center">
+                                        <div className='w-6 object-cover flex-shrink-0'>
+                                            <img src={logo} alt='' className='w-full h-full object-cover' />
+                                        </div>
+                                        Sign in with Google
                                     </button>
                                 </div>
                                 <div className="flex items-center w-full">
                                     <div className="flex-grow border-t border-gray-300"></div>
-                                    <span className="mx-4 text-md text-gray-600 text-center text-nowrap">
+                                    <span className="mx-4 text-[13px] font-[400] font-inter">
                                         Or Continue with
                                     </span>
                                     <div className="flex-grow border-t border-gray-300"></div>
                                 </div>
-                                <div className="flex flex-col items-center gap-4 w-full" >
+                                <div className="flex flex-col items-center gap-4 w-full">
                                     <input
                                         type="text"
                                         name="email"
-                                        placeholder="Enter your Email"
-                                        className="p-3 border border-gray-300 focus:border-gray-700 rounded-lg w-full"
+                                        placeholder="Enter Email"
+                                        className="p-5 border border-gray-300 focus:border-gray-700 rounded-xl w-full outline-none placeholder:text-[14px] font-inter"
                                         value={formField.email}
                                         onChange={(e) => setFormField({ ...formField, email: e.target.value })}
                                     />
@@ -97,8 +76,8 @@ const Login = () => {
                                         <input
                                             type={visibility.password ? 'text' : 'password'}
                                             name="password"
-                                            placeholder="Enter your Password"
-                                            className="p-3 border border-gray-300 focus:border-gray-700 rounded-lg w-full"
+                                            placeholder="Password"
+                                            className="p-5 border border-gray-300 focus:border-gray-700 rounded-xl w-full outline-none placeholder:text-[14px] font-inter"
                                             value={formField.password}
                                             onChange={(e) => setFormField({ ...formField, password: e.target.value })}
                                         />
@@ -109,13 +88,32 @@ const Login = () => {
                                             {visibility.password ? <VisibilityOff /> : <Visibility />}
                                         </button>
                                     </div>
-                                    <button className="border border-gray-300 p-3 rounded-lg w-full font-medium hover:bg-blue-600 hover:text-white">
+                                    <div className=' w-full flex justify-end'>
+                                        <a href="" className=' text-[12px] font-[400] font-inter hover:underline'> Forgot Password?</a>
+                                    </div>
+                                    <button className="bg-purple text-white p-4 rounded-lg w-full font-medium">
                                         Login
                                     </button>
                                 </div>
                             </div>
-                            <div>
-                                <div className='text-sm text-gray-600 font-medium text-center'>Lorem ipsum dolor sit amet consectetur adipisicing elit.</div>
+                        </div>
+                    </div>
+                    <div className="relative max-w-xl w-full h-full flex-shrink-0 hidden md:flex">
+                        <img
+                            src={img}
+                            alt=""
+                            className="w-full h-full object-fill"
+                        />
+
+                        <div className="space-x-3 bg-purple-700 text-white focus:outline-none z-10 w absolute bottom-10 left-[-100px] rounded-2xl flex items-center overflow-visible w-full max-w-md">
+                            <div className="relative rounded-2xl w-full p-6 mx-6 flex flex-col gap-4">
+                                <div className="absolute inset-0 backdrop-blur-3xl bg-transparent-400/40 rounded-lg z-[-10] w-full" />
+
+                                <div className=' font-[400] text-[12px] font-inter text-nowrap px-6 py-2 bg-purple text-white w-max rounded-lg text-center'>
+                                    A Place to Learn and Thrive</div>
+
+                                <div className="font-inter font-[400] text-white text-[15px] leading-5">Stay in a place where you can study, relax, and grow alongside a vibrant community of like minded individuals, allwhile enjoying top-notch facilities.
+                                </div>
                             </div>
                         </div>
                     </div>
