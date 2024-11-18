@@ -1,88 +1,110 @@
-Here is a sample `README.md` file for your alumni portal project:
+Here's the updated `README.md` with HTML `<img>` tags to specify a width of 200px for your alumni portal project:
 
 ```markdown
 # Alumni Portal
 
-An alumni portal designed to reconnect graduates, facilitate professional networking, and provide a space for the alumni community to thrive. Built using **Vite** and **React**, this project emphasizes simplicity, scalability, and performance.
+## Overview
+
+The Alumni Portal is a platform designed to reconnect graduates, facilitate professional networking, and provide a community space for alumni. Built using **Vite** and **React**, it offers a fast and modern user experience.
 
 ## Features
-- **User Authentication**: Secure login and registration system with Google Sign-In.
-- **Event Management**: Stay updated with alumni meet-ups, seminars, and other events.
-- **Newsletters & Gallery**: Access the latest newsletters and cherish memories through the photo gallery.
-- **Community Engagement**: Interact with fellow alumni to exchange ideas and build professional connections.
+
+- **User Authentication**: Secure login and registration, including Google Sign-In.
+- **Event Management**: Stay updated on alumni events, seminars, and networking opportunities.
+- **Newsletters & Gallery**: Access newsletters and browse memorable photos from university events.
+- **Community Building**: Connect with fellow alumni to exchange ideas and build your professional network.
+
+---
+
+## Installation
+
+### Prerequisites
+
+- **Node.js** (v14+)
+- **npm** (v6+) or **Yarn**
+
+### Clone the Repository
+
+```bash
+git clone https://github.com/your-username/alumni-portal.git
+cd alumni-portal
+```
+
+### Install Dependencies
+
+```bash
+npm install
+# or
+yarn install
+```
+
+### Run the Development Server
+
+```bash
+npm run dev
+# or
+yarn dev
+```
+
+This will start the development server and open the application in your default browser.
 
 ---
 
 ## Screenshots
 
 ### Home Page
-![Home Page](./src/assets/images/Screenshot%202024-11-18%20153450.png)
+<img src="./src/assets/images/Screenshot%202024-11-18%20153450.png" width="200">
 
 ### Registration Page
-![Registration Page](./src/assets/images/Screenshot%202024-11-18%20153501.png)
+<img src="./src/assets/images/Screenshot%202024-11-18%20153501.png" width="200">
 
 ### Login Page
-![Login Page](./src/assets/images/Screenshot%202024-11-18%20153513.png)
+<img src="./src/assets/images/Screenshot%202024-11-18%20153513.png" width="200">
 
 ---
 
 ## Tech Stack
-- **Frontend**: React, Tailwind CSS
-- **Build Tool**: Vite
+
+- **Frontend**: React with Vite
+- **Styling**: Tailwind CSS
 - **Authentication**: Firebase Authentication
 - **Deployment**: Vercel/Netlify
 
 ---
 
-## Installation
+## Contributing
 
-1. Clone the repository:
+We welcome contributions to improve the Alumni Portal. To contribute:
+
+1. Fork the repository.
+2. Create a feature branch:
    ```bash
-   git clone https://github.com/your-username/alumni-portal.git
-   cd alumni-portal
-   ```
-
-2. Install dependencies:
-   ```bash
-   npm install
-   ```
-
-3. Start the development server:
-   ```bash
-   npm run dev
-   ```
-
-4. Visit `http://localhost:3000` to see the application.
-
----
-
-## How to Contribute
-
-1. Fork this repository.
-2. Create a branch:
-   ```bash
-   git checkout -b feature-name
+   git checkout -b feature/your-feature
    ```
 3. Commit your changes:
    ```bash
-   git commit -m "Add feature description"
+   git commit -m "Add your feature"
    ```
-4. Push to your fork:
+4. Push your branch:
    ```bash
-   git push origin feature-name
+   git push origin feature/your-feature
    ```
-5. Submit a pull request.
+5. Open a pull request.
 
 ---
 
 ## License
+
 This project is licensed under the MIT License. See the [LICENSE](LICENSE) file for details.
 
 ---
 
 ## Contact
-For any queries, please reach out to **[Sawant Kumar](mailto:sawantkumar199@gmail.com)**.
+
+For questions or support, please reach out to:
+
+- **Email**: Sawantkumar199@gmail.com
+- **GitHub Issues**: [Create an Issue](https://github.com/your-username/alumni-portal/issues)
 ```
 
-### Notes:
-1. Save the uploaded images in a folder named `assets` in your project directory and rename them appropriately.
+Make sure the image paths (`./src/assets/images/...`) are correctly set according to your project's directory structure. Let me know if you'd like further customizations!
