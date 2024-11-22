@@ -79,18 +79,20 @@ const SignUp = () => {
                     <div className="font-[300] font-inter text-[14px] text-purple hover:underline cursor-pointer" onClick={SignIn}>Sign In</div>
                 </div>
                 <div className="flex flex-col md:flex-row items-center justify-between w-full h-full">
-                    <div className="relative max-w-2xl w-full h-full flex-shrink-0 hidden md:flex">
-                        <img src={img} alt="" className="w-full h-full object-fill" />
-                        <div className="absolute top-64 left-10 transform -translate-y-1/2 md:flex flex-col gap-5 hidden">
-                            <div className="flex items-center space-x-3 px-2 pe-4 py-2 rounded-full bg-purple-700 text-white focus:outline-none bg-purple z-10 w-max">
-                                <div className="relative flex justify-center items-center w-8 h-8 rounded-full">
-                                    <div className="absolute inset-0 backdrop-blur-3xl bg-white rounded-2xl opacity-40 z-[-10]" />
-                                    <svg xmlns="http://www.w3.org/2000/svg" fill="#FFFFFF" viewBox="0 0 24 24" strokeWidth="2" stroke="#FFFFFF" className="w-5 h-5 relative z-50">
-                                        <path strokeLinecap="round" strokeLinejoin="round" d="M13 10V3L4 14h7v7l9-11h-7z" />
-                                    </svg>
-                                </div>
-                                <span className="font-[400] font-inter text-[14px]">Stay Inspired</span>
-                            </div>
+                <div className="relative max-w-2xl w-full h-full flex-shrink-0 hidden md:flex">
+    <img src={img} alt="" className="w-full h-full object-fill relative" />
+    {/* Blackish overlay */}
+    <div className="absolute inset-0 bg-black bg-opacity-50" />
+    <div className="absolute top-64 left-10 transform -translate-y-1/2 md:flex flex-col gap-5 hidden">
+        <div className="flex items-center space-x-3 px-2 pe-4 py-2 rounded-full bg-purple-700 text-white focus:outline-none bg-purple z-10 w-max">
+            <div className="relative flex justify-center items-center w-8 h-8 rounded-full">
+                <div className="absolute inset-0 backdrop-blur-3xl bg-white rounded-2xl opacity-40 z-[-10]" />
+                <svg xmlns="http://www.w3.org/2000/svg" fill="#FFFFFF" viewBox="0 0 24 24" strokeWidth="2" stroke="#FFFFFF" className="w-5 h-5 relative z-50">
+                    <path strokeLinecap="round" strokeLinejoin="round" d="M13 10V3L4 14h7v7l9-11h-7z" />
+                </svg>
+            </div>
+            <span className="font-[400] font-inter text-[14px]">Stay Inspired</span>
+        </div>
                             <div className="relative rounded-2xl w-52 p-4 mx-6">
                                 <div className="absolute inset-0 backdrop-blur-xl bg-black/40 rounded-2xl z-[-10]" />
                                 <div className="relative flex justify-center items-center w-8 h-8 rounded">

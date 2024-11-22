@@ -62,7 +62,7 @@ const SignIn = () => {
     return (
         <div className="w-full h-screen flex flex-col">
             <div className="w-full h-full relative flex flex-col">
-                <div className="absolute flex items-center justify-end top-8 left-[45%] gap-4">
+                <div className="absolute flex items-center justify-end top-8 left-[40%] gap-4">
                     <div className="font-[300] font-inter text-[14px]">Don't have an account?</div>
                     <div className="font-[300] font-inter text-[14px] text-purple hover:underline cursor-pointer" onClick={SignUp}>Sign Up</div>
                 </div>
@@ -128,12 +128,13 @@ const SignIn = () => {
                             </div>
                         </div>
                     </div>
-                    <div className="relative max-w-xl w-full h-full flex-shrink-0 hidden md:flex">
+                    <div className="relative max-w-2xl w-full h-full flex-shrink-0 hidden md:flex">
                         <img
                             src={img}
                             alt=""
-                            className="w-full h-full object-fill"
+                            className="w-full h-full object-fill relative "
                         />
+    <div className="absolute inset-0 bg-black bg-opacity-50" />
 
                         <div className="space-x-3 bg-purple-700 text-white focus:outline-none z-10 w absolute bottom-10 left-[-100px] rounded-2xl flex items-center overflow-visible w-full max-w-md">
                             <div className="relative rounded-2xl w-full p-6 mx-6 flex flex-col gap-4">
