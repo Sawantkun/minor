@@ -25,3 +25,10 @@
 .nav-link:hover::after {
     width: 100%;
 }
+
+
+/* shadow */
+.custom-shadow{
+    box-shadow: rgba(99, 99, 99, 0.2) 0px 2px 8px 0px;}
+.custom-shadow2{
+    box-shadow: rgba(100, 100, 111, 0.2) 0px 7px 29px 0px;}
