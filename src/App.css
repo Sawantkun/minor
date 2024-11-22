@@ -1,0 +1,27 @@
+/* NAVBAR HOVER EFFECT */
+.nav-link {
+    position: relative;
+    text-decoration: none;
+    font-size: 1.125rem; /* Matches text-lg */
+    color: inherit; /* Inherit parent color */
+    transition: color 0.3s;
+}
+
+.nav-link::after {
+    content: '';
+    position: absolute;
+    bottom: -2px; /* Adjust based on spacing preference */
+    left: 0;
+    width: 0;
+    height: 2px; /* Thickness of the line */
+    background-color: purple; /* Line color */
+    transition: width 0.3s ease-in-out;
+}
+
+.nav-link:hover {
+    color: purple; /* Matches hover text color */
+}
+
+.nav-link:hover::after {
+    width: 100%;
+}

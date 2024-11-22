@@ -29,22 +29,22 @@ const Home = () => {
             <div className="px-6 py-2 relative bg-white z-20">
                 <div className="flex items-center justify-between w-full md:p-3 py-3 gap-4">
                     <div className="w-60 object-cover flex-shrink-0">
-                        <img
+                       <a href="/"> <img
                             src={logo}
                             alt="Alumni"
                             className="w-full h-full object-cover"
-                        />
+                        /></a>
                     </div>
                     <div className="flex items-center gap-6 cursor-pointer">
+    {/* Navbar Links */}
+    <div className="flex gap-6">
+        <a href="https://www.gbu.ac.in/page/directory" className="nav-link">Directory</a>
+        <a href="#events" className="nav-link">Events</a>
+        <a href="https://faculty.gbu.ac.in/" className="nav-link">Faculty</a>
+        <a href="https://www.gbu.ac.in/contact-us" className="nav-link">Help</a>
+    </div>
+</div>
 
-                        {/* Navbar Links */}
-                        <div className="flex gap-6">
-                            <a href="#newsletters" className="text-lg text-purple-500 hover:text-purple-700">Newsletters</a>
-                            <a href="#events" className="text-lg text-purple-500 hover:text-purple-700">Events</a>
-                            <a href="#gallery" className="text-lg text-purple-500 hover:text-purple-700">Gallery</a>
-                            <a href="#help" className="text-lg text-purple-500 hover:text-purple-700">Help</a>
-                        </div>
-                    </div>
                 </div>
             </div>
 
