@@ -36,7 +36,6 @@ const Home = () => {
                         /></a>
                     </div>
                     <div className="flex items-center gap-6 cursor-pointer">
-    {/* Navbar Links */}
     <div className="flex gap-6">
         <a href="https://www.gbu.ac.in/page/directory" className="nav-link">Directory</a>
         <a href="#events" className="nav-link">Events</a>
