@@ -1,5 +1,3 @@
-Here's the updated `README.md` with HTML `<img>` tags to specify a width of 200px for your alumni portal project:
-
 ```markdown
 # Alumni Portal
 
