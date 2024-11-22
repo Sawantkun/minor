@@ -38,7 +38,7 @@ const SignUp = () => {
     };
 
     const SignIn = () => {
-        navigate("/Login");
+        navigate("/login");
     }
 
     const handleSignUp = async (e) => {
