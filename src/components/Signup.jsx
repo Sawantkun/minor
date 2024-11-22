@@ -102,7 +102,7 @@ const SignUp = () => {
                                 <div className="font-inter font-[400] text-white mt-3 leading-tight">Reconnect, Relive Reimagine</div>
                             </div>
                         </div>
-                        <div className="space-x-3 bg-purple-700 text-white focus:outline-none bg-black z-10 w-max absolute bottom-28 right-10 px-2 pe-4 py-2 rounded-full md:flex items-center hidden">
+                        <div className="space-x-3 bg-purple-700 text-white focus:outline-none bg-[#141414] z-10 w-max absolute bottom-28 right-10 px-2 pe-4 py-2 rounded-full md:flex items-center hidden">
                             <div className="relative flex justify-center items-center w-8 h-8 rounded-full">
                                 <div className="absolute inset-0 backdrop-blur-3xl bg-white rounded-2xl opacity-40 z-[-10]" />
                                 <svg xmlns="http://www.w3.org/2000/svg" fill="#FFFFFF" viewBox="0 0 24 24" strokeWidth="2" stroke="#FFFFFF" className="w-5 h-5 relative z-50">

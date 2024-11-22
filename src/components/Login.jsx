@@ -139,7 +139,7 @@ const SignIn = () => {
                             <div className="relative rounded-2xl w-full p-6 mx-6 flex flex-col gap-4">
                                 <div className="absolute inset-0 backdrop-blur-3xl bg-transparent-400/40 rounded-lg z-[-10] w-full" />
 
-                                <div className=' font-[400] text-[12px] font-inter text-nowrap px-6 py-2 bg-purple text-white w-max rounded-lg text-center'>
+                                <div className=' font-[400] text-[14px] font-inter text-nowrap px-6 py-3 bg-purple text-white w-max rounded-lg text-center'>
                                     A Place to Learn and Thrive</div>
 
                                 <div className="font-inter font-[400] text-white text-[15px] leading-5">Stay in a place where you can study, relax, and grow alongside a vibrant community of like minded individuals, allwhile enjoying top-notch facilities.
