@@ -104,7 +104,7 @@ const Notices = () => {
          <input
             type="text"
             placeholder="Search"
-            className="border-none text-black text-xl rounded-lg px-4 py-2 focus:outline-none  "
+            className="border-none text-black text-xl rounded-lg px-4 py-2 focus:outline-none bg-[#F8F9FA] "
             value={searchTerm}
             onChange={(e) => setSearchTerm(e.target.value)}
           />
@@ -114,7 +114,7 @@ const Notices = () => {
         <div className="flex items-center border-2 px-5 py-2 rounded-lg h-[45px] w-[220px] cursor-pointer">
           <input
             type="date"
-            className="cursor-pointer border-none text-black text-xl rounded-lg px-4 py-2 focus:outline-none"
+            className="cursor-pointer border-none text-black text-xl rounded-lg px-4 py-2 focus:outline-none  bg-[#F8F9FA] "
             value={selectedDate}
             onChange={(e) => setSelectedDate(e.target.value)}
           />
@@ -127,7 +127,7 @@ const Notices = () => {
       <div className="space-y-4">
         {filteredNotices.length > 0 ? (
           filteredNotices.map((notice) => (
-            <div key={notice.id} className="flex items-center justify-between p-4 bg-white shadow-md rounded-lg">
+            <div key={notice.id} className="flex items-center justify-between p-4 bg-white shadow-md rounded-lg cursor-pointer hover:shadow-xl transition-all duration-300">
               {/* Notice Icon */}
               <img src={notice.icon} alt={notice.title} className="w-8 h-8 object-cover" />
 
