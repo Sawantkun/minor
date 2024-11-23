@@ -74,7 +74,7 @@ const Dashboard = () => {
         </div>
 
         {/* User Profile Section */}
-        <div className="flex items-center gap-4 border-t-[1px] pt-4 mt-8 cursor-pointer" onClick={() => setView('profile')}
+        <div className="flex items-center gap-4 border-t-[1px] p-4 mt-8 cursor-pointer hover:bg-gray-200 rounded-lg" onClick={() => setView('profile')}
         >
           <img
             src={UserImg}
@@ -85,7 +85,7 @@ const Dashboard = () => {
             <p className="text-black text-lg font-semibold">John Doe</p>
             <p className="text-gray-500 text-sm">johndoe@example.com</p>
           </div>
-s        </div>
+        </div>
       </div>
 
       {/* Main Content */}
