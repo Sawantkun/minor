@@ -74,7 +74,7 @@ const Dashboard = () => {
         </div>
 
         {/* User Profile Section */}
-        <div className="flex items-center gap-4 border-t-[1px] p-4 mt-8 cursor-pointer hover:bg-gray-200 rounded-lg" onClick={() => setView('profile')}
+        <div className="flex items-center gap-4 border-t-[1px] p-4 mt-8 cursor-pointer hover:bg-gray-200 rounded-lg transition-all duration-300" onClick={() => setView('profile')}
         >
           <img
             src={UserImg}
