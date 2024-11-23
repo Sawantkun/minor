@@ -4,12 +4,12 @@ import UserImg from "../assets/svgs/avatar.png";
 import SearchImg from "../assets/svgs/search.svg";
 
 const Directory = () => {
-  const [searchTerm, setSearchTerm] = useState(""); // State for search term
+  const [searchTerm, setSearchTerm] = useState("");
 
   const users = [
     {
       id: 1,
-      img: UserImg, // Replace with actual image path
+      img: UserImg,
       name: 'John Doe',
       designation: 'Software Engineer',
       location: 'New York, USA',
@@ -37,7 +37,7 @@ const Directory = () => {
     },
     {
       id: 5,
-      img: UserImg, // Replace with actual image path
+      img: UserImg,
       name: 'John Doe',
       designation: 'Software Engineer',
       location: 'New York, USA',
@@ -134,7 +134,7 @@ const Directory = () => {
           filteredUsers.map((user) => (
             <div
               key={user.id}
-              className="rounded-xl p-4 custom-shadow hover:shadow-2xl transition-all duration-300 bg-[#fff]"
+              className="rounded-xl p-4 shadow-md hover:shadow-2xl transition-all duration-300 bg-[#fff]"
             >
               {/* User Image */}
               <img
