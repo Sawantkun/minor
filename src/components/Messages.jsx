@@ -240,7 +240,7 @@ const Messages = () => {
       <div className="flex justify-between items-center mb-4">
         <h2 className="text-xl font-bold">File Preview</h2>
         <button
-          className="text-red-500 font-semibold text-lg"
+          className="text-purple font-semibold text-lg"
           onClick={() => setModalFile(null)}
         >
           ✖
@@ -276,7 +276,7 @@ const Messages = () => {
       {/* Footer */}
       <div className="flex justify-between mt-4">
         <button
-          className="bg-gray-300 text-gray-700 px-4 py-2 rounded hover:bg-gray-400"
+          className="bg-gray-300 text-black font-bold px-4 py-2 rounded"
           onClick={() => setModalFile(null)}
         >
           Close
@@ -284,7 +284,7 @@ const Messages = () => {
         <a
           href={modalFileContent}
           download={modalFile.name}
-          className="bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600"
+          className="bg-purple text-white px-4 py-2 rounded font-bold"
         >
           Download
         </a>
