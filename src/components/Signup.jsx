@@ -61,7 +61,7 @@ const SignUp = () => {
             const user = userCredential.user;
 
             // Redirect to a different page (e.g., Home page)
-            navigate("/home");
+            navigate("/dashboard");
 
             // Optionally show a success message or save user info in the app
             toast.success("Account created successfully!");
