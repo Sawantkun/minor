@@ -78,21 +78,19 @@ const Profile = () => {
       {/* Tabs */}
       <div className="flex gap-4 border-b pb-2 mb-6">
         <button
-          className={`px-4 py-2 ${
-            activeTab === "profile"
-              ? "border-b-2 border-purple bg-gray-200 font-bold rounded-t-lg"
-              : ""
-          }`}
+          className={`px-4 py-2 ${activeTab === "profile"
+            ? "border-b-2 border-purple bg-gray-200 font-bold rounded-t-lg"
+            : ""
+            }`}
           onClick={() => setActiveTab("profile")}
         >
           Profile
         </button>
         <button
-          className={`px-4 py-2 ${
-            activeTab === "security"
-              ? "border-b-2 border-purple bg-gray-200 font-bold rounded-t-lg"
-              : ""
-          }`}
+          className={`px-4 py-2 ${activeTab === "security"
+            ? "border-b-2 border-purple bg-gray-200 font-bold rounded-t-lg"
+            : ""
+            }`}
           onClick={() => setActiveTab("security")}
         >
           Password & Security
@@ -195,8 +193,8 @@ const Profile = () => {
         </div>
       )}
 
- {/* Danger Zone */}
- {activeTab === "profile" && (
+      {/* Danger Zone */}
+      {activeTab === "profile" && (
         <div className="mt-8 bg-red-100 border border-red-300 rounded-lg p-4">
           <h3 className="text-red-700 text-lg font-bold mb-3">Danger Zone</h3>
           <div className="flex gap-4">
@@ -312,7 +310,7 @@ const Profile = () => {
           </div>
           <button
             onClick={handlePasswordChange}
-            className="bg-purple text-white px-4 py-2 rounded-lg w-[120px] border border-purple font-medium mt-5"
+            className="bg-purple text-white px-4 py-2 rounded-lg w-max border border-purple font-medium mt-5 "
           >
             Save Changes
           </button>

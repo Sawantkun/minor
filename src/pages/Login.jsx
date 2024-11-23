@@ -8,6 +8,7 @@ import { auth } from '../firebase';
 import Visibility from '@mui/icons-material/Visibility';
 import VisibilityOff from '@mui/icons-material/VisibilityOff';
 import img from "../assets/image.png"
+import Button from '../components/ui/button';
 
 const SignIn = () => {
     const [visibility, setVisibility] = useState(false);
@@ -45,7 +46,9 @@ const SignIn = () => {
             const user = userCredential.user;
 
             // Redirect to a different page (e.g., Home page)
-            navigate("/dashboard");
+            navigate("/dashboard", {
+                state: { newUser: false },
+            });
 
             // Optionally show a success message or save user info in the app
             toast.success("Signed in successfully!");
@@ -121,9 +124,9 @@ const SignIn = () => {
                                     <div className=' w-full flex justify-end'>
                                         <a href="" className=' text-[12px] font-[400] font-inter hover:underline'> Forgot Password?</a>
                                     </div>
-                                    <button onClick={handleSignIn} className="bg-purple text-white p-4 rounded-lg w-full font-medium">
+                                    <Button onClick={handleSignIn} className="bg-purple text-white p-4 rounded-lg w-full font-medium">
                                         Login
-                                    </button>
+                                    </Button>
                                 </div>
                             </div>
                         </div>
@@ -134,7 +137,7 @@ const SignIn = () => {
                             alt=""
                             className="w-full h-full object-fill relative "
                         />
-    <div className="absolute inset-0 bg-black bg-opacity-50" />
+                        <div className="absolute inset-0 bg-black bg-opacity-50" />
 
                         <div className="space-x-3 bg-purple-700 text-white focus:outline-none z-10 w absolute bottom-10 left-[-100px] rounded-2xl flex items-center overflow-visible w-full max-w-md">
                             <div className="relative rounded-2xl w-full p-6 mx-6 flex flex-col gap-4">
