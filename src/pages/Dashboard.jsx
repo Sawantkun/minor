@@ -48,7 +48,7 @@ const Dashboard = () => {
   const location = useLocation();
   const [isNewUser, setIsNewUser] = useState(false);
   const [steps, setsteps] = useState(0)
-  const [verfication, setverfication] = useState("")
+  const [verfication, setverfication] = useState(true)
   const [formField, setFormField] = useState({
     degree: ""
   })
@@ -74,7 +74,7 @@ const Dashboard = () => {
 
   return (
     <div className="flex min-h-screen max-h-full bg-[#F8F9FA]">
-      {isNewUser === false ? (
+      {isNewUser ? (
         <div className="w-full flex flex-col h-full">
           <div className='w-full flex items-center px-8 py-4 justify-between fixed'>
             <div className="w-[280px] object-cover flex-shrink-0">
@@ -223,7 +223,7 @@ const Dashboard = () => {
                     onClick={handleSubmit}
                     disabled={!(verfication !== "" || steps !== 2)}
                   >
-                    {steps === 0 ? "Become a Member" : steps === 1 ? "Upload" : "Make payment"}
+                    {verfication === "" ? steps === 0 ? "Become a Member" : steps === 1 ? "Upload" : "Make payment" : "Make Payment"}
                   </Button>
                 </div>
               </div>
