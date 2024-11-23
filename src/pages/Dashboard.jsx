@@ -15,6 +15,7 @@ import userLog from "../assets/images/user.png"
 import CheckCircleIcon from '@mui/icons-material/CheckCircle';
 import Button from '../components/ui/button';
 import uploadLogo from "../assets/images/upload.png"
+import CloseIcon from '@mui/icons-material/Close';
 
 const Dashboard = () => {
 
@@ -64,6 +65,7 @@ const Dashboard = () => {
     if (steps === 0) {
       setsteps(1);
     } else if (steps === 1 && formField.degree !== "") {
+      console.log(formField.degree)
       setsteps(2);
     } else if (steps === 2) {
       setsteps(3);
@@ -134,29 +136,53 @@ const Dashboard = () => {
                           </div>
                         </div>
                       ) : steps === 1 ? (
-                        <div className=' w-full'>
-                          <div className=' text-xl font-[600] font-inter'>Upload your GBU Degree for verfications</div>
-                          <div className="border border-dashed border-gray-700 p-4 mt-4">
+                        <div className="w-full">
+                          <div className="text-xl font-[600] font-inter">
+                            Upload your GBU Degree for verifications
+                          </div>
+                          <div className="border border-dashed border-gray-700 p-4 mt-4 relative">
                             <input
                               type="file"
                               id="degree"
                               name="degree"
                               className="hidden"
-                              value={formField.degree}
-                              onChange={(e) => setFormField({ ...formField, degree: e.target.value })}
+                              onChange={(e) => {
+                                const file = e.target.files?.[0];
+                                if (file) {
+                                  setFormField({ ...formField, degree: URL.createObjectURL(file) });
+                                  e.target.value = "";
+                                }
+                              }}
                             />
-                            <label htmlFor="degree" className="cursor-pointer">
-                              <div className="w-10 h-full object-cover flex-shrink-0 mx-auto">
+                            {formField.degree ? (
+                              <div className="relative">
                                 <img
-                                  src={uploadLogo}
-                                  alt="Upload Logo"
-                                  className="w-full h-full object-cover"
+                                  src={formField.degree}
+                                  alt="Uploaded Preview"
+                                  className="w-[250px] h-full object-cover flex-shrink-0 mx-auto"
                                 />
+                                <button
+                                  onClick={() => setFormField({ ...formField, degree: "" })}
+                                  className="absolute top-0 right-0 bg-red-600 text-white text-xs rounded-full w-5 h-5 flex items-center justify-center"
+                                >
+                                  <CloseIcon fontSize='larger' />
+                                </button>
                               </div>
-                              <div className="text-center mt-2">Drag and Upload your file here.</div>
-                            </label>
+                            ) : (
+                              <label htmlFor="degree" className="cursor-pointer">
+                                <div className="w-10 h-10 object-cover flex-shrink-0 mx-auto">
+                                  <img
+                                    src={uploadLogo}
+                                    alt="Upload Logo"
+                                    className="w-full h-full object-cover"
+                                  />
+                                </div>
+                                <div className="text-center mt-2">Drag and Upload your file here.</div>
+                              </label>
+                            )}
                           </div>
                         </div>
+
                       ) : steps === 2 && formField.degree !== "" && (
                         <div className=' w-full'>
                           <div className=' flex flex-col w-full items-center justify-center'>
