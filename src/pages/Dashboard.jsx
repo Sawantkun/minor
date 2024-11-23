@@ -46,12 +46,14 @@ const Dashboard = () => {
   ];
 
   const location = useLocation();
-  const [isNewUser, setIsNewUser] = useState(false);
+  const [isNewUser, setIsNewUser] = useState(true);
   const [steps, setsteps] = useState(0)
-  const [verfication, setverfication] = useState(true)
+  const [verification, setverification] = useState(true)
+  const [payment, setPayment]=useState(false)
   const [formField, setFormField] = useState({
     degree: ""
   })
+
 
   useEffect(() => {
     console.log(location);
@@ -67,14 +69,16 @@ const Dashboard = () => {
     } else if (steps === 1 && formField.degree !== "") {
       console.log(formField.degree)
       setsteps(2);
+
     } else if (steps === 2) {
+        console.log(hell)
       setsteps(3);
     }
   }
 
   return (
     <div className="flex min-h-screen max-h-full bg-[#F8F9FA]">
-      {isNewUser ? (
+      {isNewUser && !payment ? (
         <div className="w-full flex flex-col h-full">
           <div className='w-full flex items-center px-8 py-4 justify-between fixed'>
             <div className="w-[280px] object-cover flex-shrink-0">
@@ -106,7 +110,7 @@ const Dashboard = () => {
                   </div>
                 </div>
                 <div className=' flex flex-col gap-4 w-max justify-center mx-auto'>
-                  {verfication === "" ? (
+                  {verification === "" ? (
                     <>
                       {steps === 0 ? (
                         <div className=' w-full flex flex-col gap-4'>
@@ -134,6 +138,13 @@ const Dashboard = () => {
                             </div>
                             <div className='font-inter font-[400]'>Expand your professional and personal work</div>
                           </div>
+                          <Button
+                    className={`w-full mt-10 ${verification === false ? 'hidden' : ''}`}
+                    onClick={handleSubmit}
+                    disabled={!(verification !== "" || steps !== 2)}
+                  >
+                    Become a Member
+                  </Button>
                         </div>
                       ) : steps === 1 ? (
                         <div className="w-full">
@@ -181,6 +192,13 @@ const Dashboard = () => {
                               </label>
                             )}
                           </div>
+                          <Button
+                    className={`w-full mt-10 ${verification === false ? 'hidden' : ''}`}
+                    onClick={handleSubmit}
+                    disabled={!(verification !== "" || steps !== 2)}
+                  >
+                    Upload File
+                  </Button>
                         </div>
 
                       ) : steps === 2 && formField.degree !== "" && (
@@ -190,20 +208,36 @@ const Dashboard = () => {
                               <CheckCircleIcon fontSize="small" className=' text-green-500' />
                               <div className='font-[600] font-inter'>File Uplaoded</div>
                             </div>
-                            <div className=' text-gray-700 mt-2'>Proceed to payment once verfication is completed. </div>
+                            <div className=' text-gray-700 mt-2'>Proceed to payment once verification is completed. </div>
                             <div className='text-gray-700'>This may take 1 - 2 business days.</div>
                           </div>
+                          <Button
+                    className={`w-full mt-10 ${verification === false ? 'hidden' : ''}`}
+                    onClick={handleSubmit}
+                    disabled={!(verification !== "" || steps !== 2)}
+                  >
+                    Make Payment
+                  </Button>
                         </div>
                       )}
                     </>
                   ) : (
                     <>
-                      {verfication ? (
+                      {verification ? (
                         <div className=' w-full'>
                           <div className=' flex items-center justify-center gap-2'>
                             <CheckCircleIcon fontSize="small" className=' text-green-500' />
-                            <div className='font-[600] font-inter'>Verfication Completed</div>
+                            <div className='font-[600] font-inter'>verification Completed</div>
                           </div>
+                          <div className=' w-full'>
+                  <Button
+                    className={`w-full mt-10 ${verification === false ? 'hidden' : ''}`}
+                    onClick={()=>setPayment(true)}
+                    disabled={!(verification !== "" || steps !== 2)}
+                  >
+                    Make Payment
+                  </Button>
+                </div>
                         </div>
                       ) : (
                         <div className=' w-full'>
@@ -217,15 +251,7 @@ const Dashboard = () => {
                     </>
                   )}
                 </div>
-                <div className=' w-full'>
-                  <Button
-                    className={`w-full ${verfication === false ? 'hidden' : ''}`}
-                    onClick={handleSubmit}
-                    disabled={!(verfication !== "" || steps !== 2)}
-                  >
-                    {verfication === "" ? steps === 0 ? "Become a Member" : steps === 1 ? "Upload" : "Make payment" : "Make Payment"}
-                  </Button>
-                </div>
+
               </div>
             </div>
           </div>
