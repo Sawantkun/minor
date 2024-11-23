@@ -113,7 +113,7 @@ const Directory = () => {
             <input
               type="text"
               placeholder="Search"
-              className="border-none text-black text-xl rounded-lg px-4 py-2 focus:outline-none"
+              className="border-none text-black text-xl rounded-lg px-4 py-2 focus:outline-none  bg-[#F8F9FA] "
               value={searchTerm} // Bind input to state
               onChange={(e) => setSearchTerm(e.target.value)} // Update state on input change
             />
