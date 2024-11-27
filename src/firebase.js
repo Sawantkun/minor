@@ -1,7 +1,10 @@
 // src/firebase.js
 import { initializeApp } from 'firebase/app';
-import { getAuth, createUserWithEmailAndPassword, signInWithPopup, GoogleAuthProvider } from 'firebase/auth';
+import { getAuth, createUserWithEmailAndPassword, signInWithPopup, GoogleAuthProvider,browserLocalPersistence,setPersistence } from 'firebase/auth';
 import { getFirestore, doc, setDoc } from 'firebase/firestore'; // Import Firestore functions
+import { getStorage } from "firebase/storage";
+
+
 
 const firebaseConfig = {
     apiKey: import.meta.env.VITE_FIREBASE_API_KEY,
@@ -18,6 +21,7 @@ const app = initializeApp(firebaseConfig);
 const auth = getAuth(app);
 const googleProvider = new GoogleAuthProvider();
 const db = getFirestore(app); // Initialize Firestore
+const storage = getStorage(app)
 
 // Function to save user data to Firestore
 const saveUserToFirestore = async (user) => {
@@ -42,13 +46,32 @@ const signInWithGoogle = async () => {
     const result = await signInWithPopup(auth, googleProvider);
     const user = result.user;
     // Save user data to Firestore
-    await saveUserToFirestore(user);
     return user; // Return the user details if needed
   } catch (error) {
     console.error("Google Sign-In Error:", error);
     throw error;
   }
 };
+// Google sign-in function
+const signUpWithGoogle = async () => {
+    try {
+      const result = await signInWithPopup(auth, googleProvider);
+      const user = result.user;
+      // Save user data to Firestore
+      await saveUserToFirestore(user);
+      return user; // Return the user details if needed
+    } catch (error) {
+      console.error("Google Sign-In Error:", error);
+      throw error;
+    }
+  };
+setPersistence(auth, browserLocalPersistence)
+  .then(() => {
+    console.log("Auth persistence set to local");
+  })
+  .catch((error) => {
+    console.error("Error setting auth persistence:", error);
+  });
 
 // Export necessary functions
-export { auth, createUserWithEmailAndPassword, signInWithGoogle };
+export { auth, createUserWithEmailAndPassword, signInWithGoogle, signUpWithGoogle,db,storage  };

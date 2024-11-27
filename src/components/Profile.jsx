@@ -1,9 +1,15 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
+import { db } from "../firebase";
+import { doc, getDoc, updateDoc } from "firebase/firestore";
+import useAuth from "../hooks/AuthContext";
 import Avatar from "../assets/svgs/avatar.png";
 import Edit from "../assets/svgs/edit.svg";
 import { useNavigate } from "react-router-dom";
 
+
 const Profile = () => {
+  const { user } = useAuth();
+  const navigate = useNavigate();
   const [activeTab, setActiveTab] = useState("profile");
   const [isEditing, setIsEditing] = useState(false);
   const [showDeleteModal, setShowDeleteModal] = useState(false);
@@ -11,32 +17,58 @@ const Profile = () => {
     email: "",
     password: "",
   });
-  const navigate = useNavigate();
-
-  const handleLogout = () => {
-    alert("Logging out...");
-    navigate("/");
-  };
-
   const [userInfo, setUserInfo] = useState({
-    profilePic: "",
-    username: "Sawant Kumar",
-    email: "Sawant@example.com",
-    educationLevel: "Bachelor's",
-    designation: "Software Engineer",
-    graduationYear: "2022",
-    companyName: "Tech Corp",
-    linkedinId: "https://linkedin.com/in/sawant",
-    city: "Greater Noida",
-    experience: 3,
-    country: "India",
+    city: "",
+    educationLevel: "",
+    graduationYear: "",
+    companyName: "",
+    experience: "",
+    country: "",
+    location: "",
+    linkedinId: "",
+    designation: "",
+    profilePic: user?.photoURL || Avatar,
   });
-
   const [password, setPassword] = useState({
     currentPassword: "",
     newPassword: "",
     confirmPassword: "",
   });
+
+  const handleSave = async () => {
+    if (!user) return;
+    try {
+      const userDocRef = doc(db, "users", user.uid);
+      await updateDoc(userDocRef, userInfo);
+      alert("Profile information saved successfully!");
+      setIsEditing(false);
+      fetchUserData(); // Ensure we fetch the latest data
+    } catch (error) {
+      console.error("Error updating user data: ", error);
+    }
+  };
+
+  const fetchUserData = async () => {
+    if (!user) return;
+    try {
+      const userDocRef = doc(db, "users", user.uid);
+      const docSnap = await getDoc(userDocRef);
+      if (docSnap.exists()) {
+        setUserInfo(docSnap.data());
+      } else {
+        console.error("No such user document!");
+      }
+    } catch (error) {
+      console.error("Error fetching user data: ", error);
+    }
+  };
+
+  useEffect(() => {
+    if (user) {
+      fetchUserData();
+    }
+  }, [user]);
+
 
   const handleChange = (field, value) => {
     setUserInfo((prev) => ({
@@ -45,9 +77,9 @@ const Profile = () => {
     }));
   };
 
-  const handleSave = () => {
-    setIsEditing(false);
-    alert("Profile information saved successfully!");
+  const handleLogout = () => {
+    user && user.auth.signOut();
+    navigate("/login");
   };
 
   const handlePasswordChange = () => {
@@ -74,43 +106,45 @@ const Profile = () => {
   return (
     <div className="py-4 px-6 ml-[310px] w-full">
       <h1 className="text-3xl font-bold mb-6">Profile Settings</h1>
-
-      {/* Tabs */}
       <div className="flex gap-4 border-b pb-2 mb-6">
         <button
-          className={`px-4 py-2 ${activeTab === "profile"
-            ? "border-b-2 border-purple bg-gray-200 font-bold rounded-t-lg"
-            : ""
-            }`}
+          className={`px-4 py-2 ${
+            activeTab === "profile"
+              ? "border-b-2 border-purple bg-gray-200 font-bold rounded-t-lg"
+              : ""
+          }`}
           onClick={() => setActiveTab("profile")}
         >
           Profile
         </button>
         <button
-          className={`px-4 py-2 ${activeTab === "security"
-            ? "border-b-2 border-purple bg-gray-200 font-bold rounded-t-lg"
-            : ""
-            }`}
+          className={`px-4 py-2 ${
+            activeTab === "security"
+              ? "border-b-2 border-purple bg-gray-200 font-bold rounded-t-lg"
+              : ""
+          }`}
           onClick={() => setActiveTab("security")}
         >
           Password & Security
         </button>
       </div>
-
-      {/* Profile Tab */}
       {activeTab === "profile" && (
         <div>
           {!isEditing ? (
             <div className="p-6 shadow-md rounded-lg bg-white">
               <div className="flex items-center mb-4">
                 <img
-                  src={userInfo.profilePic || Avatar}
-                  alt="Profile"
-                  className="w-16 h-16 rounded-full"
+                  src={user?.photoURL || Avatar}
+                  alt="User"
+                  className="w-14 h-14 rounded-full object-cover"
                 />
                 <div className="ml-4">
-                  <h2 className="text-xl font-bold">{userInfo.username}</h2>
-                  <p className="text-gray-500">{userInfo.designation}</p>
+                  <p className="text-black text-lg font-semibold">
+                    {user?.displayName || "John Doe"}
+                  </p>
+                  <p className="text-gray-500">
+                    {userInfo?.designation || "No designation"}
+                  </p>
                 </div>
                 <button
                   onClick={() => setIsEditing(true)}
@@ -121,69 +155,168 @@ const Profile = () => {
                 </button>
               </div>
               <div className="grid grid-cols-2 gap-4 mt-4">
-                <p><strong>Email:</strong> {userInfo.email}</p>
-                <p><strong>City:</strong> {userInfo.city}</p>
-                <p><strong>Education Level:</strong> {userInfo.educationLevel}</p>
-                <p><strong>Graduation Year:</strong> {userInfo.graduationYear}</p>
-                <p><strong>Company:</strong> {userInfo.companyName}</p>
-                <p><strong>Experience:</strong> {userInfo.experience} years</p>
-                <p><strong>Country:</strong> {userInfo.country}</p>
+                <p>
+                  <strong>Email:</strong> {user?.email}
+                </p>
+                <p>
+                  <strong>City:</strong> {userInfo?.city}
+                </p>
+                <p>
+                  <strong>Education Level:</strong> {userInfo?.educationLevel}
+                </p>
+                <p>
+                  <strong>Graduation Year:</strong>{" "}
+                  {userInfo?.graduationYear}
+                </p>
+                <p>
+                  <strong>Company:</strong> {userInfo?.companyName}
+                </p>
+                <p>
+                  <strong>Experience:</strong> {userInfo?.experience} years
+                </p>
+                <p>
+                  <strong>Location:</strong> {userInfo?.location}
+                </p>
+                <p>
+                  <strong>Country:</strong> {userInfo?.country}
+                </p>
                 <p>
                   <strong>LinkedIn:</strong>{" "}
-                  <a href={userInfo.linkedinId} target="_blank" rel="noreferrer" className="text-blue-500 underline">
-                    {userInfo.linkedinId}
+                  <a
+                    href={userInfo?.linkedinId}
+                    target="_blank"
+                    rel="noreferrer"
+                    className="text-blue-500 underline"
+                  >
+                    {userInfo?.linkedinId}
                   </a>
                 </p>
               </div>
             </div>
           ) : (
             <div className="p-6 shadow-md rounded-lg bg-white">
-              <div className="grid grid-cols-2 gap-6">
-                <div>
-                  <label className="block font-medium mb-1">Profile Picture</label>
-                  <input
-                    type="file"
-                    onChange={(e) =>
-                      setUserInfo((prev) => ({
-                        ...prev,
-                        profilePic: URL.createObjectURL(e.target.files[0]),
-                      }))
-                    }
-                  />
-                  {userInfo.profilePic && (
+                <div className="mb-10">
+                  <label className="block font-medium mb-1">
+                    Profile Picture
+                  </label>
+                  {user?.photoURL && (
                     <img
-                      src={userInfo.profilePic}
+                      src={user.photoURL}
                       alt="Profile"
                       className="w-24 h-24 rounded-full mt-4"
                     />
                   )}
                 </div>
-                {Object.keys(userInfo)
-                  .filter((key) => key !== "profilePic")
-                  .map((key) => (
-                    <div key={key}>
-                      <label className="block font-medium mb-1 capitalize">
-                        {key.replace(/([A-Z])/g, " $1")}
-                      </label>
-                      <input
-                        type="text"
-                        className="w-full border px-3 py-2 rounded"
-                        value={userInfo[key]}
-                        onChange={(e) => handleChange(key, e.target.value)}
-                      />
-                    </div>
-                  ))}
+              <div className="grid grid-cols-2 gap-6">
+                <div>
+                  <label className="block font-medium mb-1">Designation</label>
+                  <input
+                    type="text"
+                    className="w-full border px-3 py-2 rounded"
+                    value={userInfo.designation || ""}
+                    onChange={(e) =>
+                      handleChange("designation", e.target.value)
+                    }
+                  />
+                </div>
+                <div>
+                  <label className="block font-medium mb-1">City</label>
+                  <input
+                    type="text"
+                    className="w-full border px-3 py-2 rounded"
+                    value={userInfo.city || ""}
+                    onChange={(e) => handleChange("city", e.target.value)}
+                  />
+                </div>
+                <div>
+                  <label className="block font-medium mb-1">
+                    Education Level
+                  </label>
+                  <input
+                    type="text"
+                    className="w-full border px-3 py-2 rounded"
+                    value={userInfo.educationLevel || ""}
+                    onChange={(e) =>
+                      handleChange("educationLevel", e.target.value)
+                    }
+                  />
+                </div>
+                <div>
+                  <label className="block font-medium mb-1">
+                    Graduation Year
+                  </label>
+                  <input
+                    type="text"
+                    className="w-full border px-3 py-2 rounded"
+                    value={userInfo.graduationYear || ""}
+                    onChange={(e) =>
+                      handleChange("graduationYear", e.target.value)
+                    }
+                  />
+                </div>
+                <div>
+                  <label className="block font-medium mb-1">Company Name</label>
+                  <input
+                    type="text"
+                    className="w-full border px-3 py-2 rounded"
+                    value={userInfo.companyName || ""}
+                    onChange={(e) =>
+                      handleChange("companyName", e.target.value)
+                    }
+                  />
+                </div>
+                <div>
+                  <label className="block font-medium mb-1">
+                    Experience (Years)
+                  </label>
+                  <input
+                    type="number"
+                    className="w-full border px-3 py-2 rounded"
+                    value={userInfo.experience || ""}
+                    onChange={(e) =>
+                      handleChange("experience", e.target.value)
+                    }
+                  />
+                </div>
+                <div>
+                  <label className="block font-medium mb-1">Country</label>
+                  <input
+                    type="text"
+                    className="w-full border px-3 py-2 rounded"
+                    value={userInfo.country || ""}
+                    onChange={(e) => handleChange("country", e.target.value)}
+                  />
+                </div>
+                <div>
+                  <label className="block font-medium mb-1">Location</label>
+                  <input
+                    type="text"
+                    className="w-full border px-3 py-2 rounded"
+                    value={userInfo.location || ""}
+                    onChange={(e) => handleChange("location", e.target.value)}
+                  />
+                </div>
+                <div>
+                  <label className="block font-medium mb-1">Linkedin</label>
+                  <input
+                    type="text"
+                    className="w-full border px-3 py-2 rounded"
+                    value={userInfo.linkedinId || ""}
+                    onChange={(e) => handleChange("linkedinId", e.target.value)}
+                  />
+                </div>
+
               </div>
-              <div className="flex gap-4 mt-6">
+              <div className="mt-4">
                 <button
+                  className="bg-purple text-white px-4 py-2 rounded-md mr-3"
                   onClick={handleSave}
-                  className="bg-purple text-white px-4 py-2 rounded-lg border border-purple"
                 >
-                  Save Changes
+                  Save
                 </button>
                 <button
+                  className="bg-gray-300 text-gray-800 px-4 py-2 rounded-md"
                   onClick={() => setIsEditing(false)}
-                  className="bg-gray-200 text-black px-4 py-2 rounded-lg"
                 >
                   Cancel
                 </button>
@@ -192,7 +325,6 @@ const Profile = () => {
           )}
         </div>
       )}
-
       {/* Danger Zone */}
       {activeTab === "profile" && (
         <div className="mt-8 bg-red-100 border border-red-300 rounded-lg p-4">

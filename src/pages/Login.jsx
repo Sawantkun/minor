@@ -2,12 +2,13 @@ import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import logo from "../assets/googlelogo.png";
 import { toast } from 'react-toastify';
-import { signInWithGoogle } from '../firebase'; // Adjust the path if necessary
-import { signInWithEmailAndPassword } from 'firebase/auth';
-import { auth } from '../firebase';
+import { signInWithGoogle } from '../firebase';
+import { signInWithEmailAndPassword, sendPasswordResetEmail } from 'firebase/auth';
+import { doc, getDoc } from "firebase/firestore";
+import { auth, db } from '../firebase';
 import Visibility from '@mui/icons-material/Visibility';
 import VisibilityOff from '@mui/icons-material/VisibilityOff';
-import img from "../assets/image.png"
+import img from "../assets/image.png";
 import Button from '../components/ui/button';
 
 const SignIn = () => {
@@ -16,51 +17,56 @@ const SignIn = () => {
         email: "",
         password: "",
     });
+    const [emailForReset, setEmailForReset] = useState("");
 
     const navigate = useNavigate();
 
     const handleGoogleSignIn = async () => {
         try {
             const user = await signInWithGoogle();
-            console.log(user); // Log the user details if needed
+            console.log("User logged in:", user);
+            // Proceed to dashboard without updating Firestore
             toast.success("Signed in with Google successfully!");
-            navigate("/home");
+            navigate("/dashboard");
+
         } catch (error) {
-            console.error("Google Sign-In Error:", error);
+            console.error("Google sign-in error:", error);
             toast.error("Google sign-in failed. Please try again.");
         }
     };
-
     const handleSignIn = async (e) => {
         e.preventDefault();
-
-        // Form validation for required fields
         if (!formField.email || !formField.password) {
             toast.error("Please fill all fields.");
             return;
         }
-
         try {
-            // Sign in with Firebase Authentication
-            const userCredential = await signInWithEmailAndPassword(auth, formField.email, formField.password);
-            const user = userCredential.user;
-
-            // Redirect to a different page (e.g., Home page)
-            navigate("/dashboard", {
-                state: { newUser: false },
-            });
-
-            // Optionally show a success message or save user info in the app
+            const user = await signInWithEmailAndPassword(auth, formField.email, formField.password);
+            console.log(user)
             toast.success("Signed in successfully!");
+            navigate("/dashboard", { state: { newUser: false } });
         } catch (error) {
-            // Handle Firebase errors (e.g., wrong password, invalid email)
             toast.error(error.message);
         }
-    }
+    };
+
+    const handlePasswordReset = async (e) => {
+        e.preventDefault();
+        if (!emailForReset) {
+            toast.error("Please enter your email.");
+            return;
+        }
+        try {
+            await sendPasswordResetEmail(auth, emailForReset);
+            toast.success("Password reset email sent. Please check your inbox.");
+        } catch (error) {
+            toast.error("Error sending password reset email: " + error.message);
+        }
+    };
 
     const SignUp = () => {
         navigate("/signup");
-    }
+    };
 
     return (
         <div className="w-full h-screen flex flex-col">
@@ -73,12 +79,8 @@ const SignIn = () => {
                     <div className="flex items-center justify-center max-w-md mx-auto w-full h-screen">
                         <div className="flex flex-col gap-8 pt-8 w-full md:px-0 px-5">
                             <div>
-                                <div className="text-[36px] text-center font-[600] font-inter">
-                                    Welcome Back
-                                </div>
-                                <div className="font-inter font-[400] text-[15px] text-center text-light">
-                                    Login to your account
-                                </div>
+                                <div className="text-[36px] text-center font-[600] font-inter">Welcome Back</div>
+                                <div className="font-inter font-[400] text-[15px] text-center text-light">Login to your account</div>
                             </div>
                             <div className="flex flex-col items-center gap-6 w-full">
                                 <div className="flex items-center gap-4 w-full justify-center">
@@ -91,9 +93,7 @@ const SignIn = () => {
                                 </div>
                                 <div className="flex items-center w-full">
                                     <div className="flex-grow border-t border-gray-300"></div>
-                                    <span className="mx-4 text-[13px] font-[400] font-inter">
-                                        Or Continue with
-                                    </span>
+                                    <span className="mx-4 text-[13px] font-[400] font-inter">Or Continue with</span>
                                     <div className="flex-grow border-t border-gray-300"></div>
                                 </div>
                                 <div className="flex flex-col items-center gap-4 w-full">
@@ -121,35 +121,37 @@ const SignIn = () => {
                                             {visibility.password ? <VisibilityOff /> : <Visibility />}
                                         </button>
                                     </div>
-                                    <div className=' w-full flex justify-end'>
-                                        <a href="" className=' text-[12px] font-[400] font-inter hover:underline'> Forgot Password?</a>
+                                    <div className='w-full flex justify-end'>
+                                        <button
+                                            onClick={() => setEmailForReset(formField.email)}
+                                            className='text-[12px] font-[400] font-inter hover:underline'>
+                                            Forgot Password?
+                                        </button>
                                     </div>
                                     <Button onClick={handleSignIn} className="bg-purple text-white p-4 rounded-lg w-full font-medium">
                                         Login
                                     </Button>
+                                    {emailForReset && (
+                                        <div className="mt-4 text-center w-full">
+                                            <input
+                                                type="email"
+                                                placeholder="Enter your email for password reset"
+                                                className="p-5 border border-gray-300 rounded-xl w-full outline-none placeholder:text-[14px] font-inter mb-5"
+                                                value={emailForReset}
+                                                onChange={(e) => setEmailForReset(e.target.value)}
+                                            />
+                                            <Button onClick={handlePasswordReset} className="bg-purple text-white p-4 rounded-lg w-full font-medium">
+                                                Reset Password
+                                            </Button>
+                                        </div>
+                                    )}
                                 </div>
                             </div>
                         </div>
                     </div>
                     <div className="relative max-w-2xl w-full h-full flex-shrink-0 hidden md:flex">
-                        <img
-                            src={img}
-                            alt=""
-                            className="w-full h-full object-fill relative "
-                        />
+                        <img src={img} alt="" className="w-full h-full object-fill relative" />
                         <div className="absolute inset-0 bg-black bg-opacity-50" />
-
-                        <div className="space-x-3 bg-purple-700 text-white focus:outline-none z-10 w absolute bottom-10 left-[-100px] rounded-2xl flex items-center overflow-visible w-full max-w-md">
-                            <div className="relative rounded-2xl w-full p-6 mx-6 flex flex-col gap-4">
-                                <div className="absolute inset-0 backdrop-blur-3xl bg-transparent-400/40 rounded-lg z-[-10] w-full" />
-
-                                <div className=' font-[400] text-[14px] font-inter text-nowrap px-6 py-3 bg-purple text-white w-max rounded-lg text-center'>
-                                    A Place to Learn and Thrive</div>
-
-                                <div className="font-inter font-[400] text-white text-[15px] leading-5">Stay in a place where you can study, relax, and grow alongside a vibrant community of like minded individuals, allwhile enjoying top-notch facilities.
-                                </div>
-                            </div>
-                        </div>
                     </div>
                 </div>
             </div>
