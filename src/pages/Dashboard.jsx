@@ -16,7 +16,7 @@ import CheckCircleIcon from '@mui/icons-material/CheckCircle';
 import Button from '../components/ui/button';
 import uploadLogo from "../assets/images/upload.png"
 import CloseIcon from '@mui/icons-material/Close';
-import PayPalButton from '../components/paypalButton';
+import PayPalButton from '../components/PaypalButton';
 import { ref, uploadBytes, getDownloadURL } from "firebase/storage";
 import { storage } from "../firebase";
 
