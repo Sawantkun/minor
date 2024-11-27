@@ -1,105 +1,42 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
+import { getDocs, collection } from 'firebase/firestore'; // Import from firebase.js
+import { db } from '../firebase'; // Import Firestore initialization from your firebase.js file
 import MessagesImg from "../assets/svgs/messages.svg";
 import UserImg from "../assets/svgs/avatar.png";
 import SearchImg from "../assets/svgs/search.svg";
 
 const Directory = () => {
-  const [searchTerm, setSearchTerm] = useState("");
+  const [searchTerm, setSearchTerm] = useState('');
+  const [users, setUsers] = useState([]);
+  const [loading, setLoading] = useState(true);
 
-  const users = [
-    {
-      id: 1,
-      img: UserImg,
-      name: 'John Doe',
-      designation: 'Software Engineer',
-      location: 'New York, USA',
-    },
-    {
-      id: 2,
-      img: UserImg,
-      name: 'Jane Smith',
-      designation: 'Project Manager',
-      location: 'London, UK',
-    },
-    {
-      id: 3,
-      img: UserImg,
-      name: 'Michael Johnson',
-      designation: 'UI/UX Designer',
-      location: 'San Francisco, USA',
-    },
-    {
-      id: 4,
-      img: UserImg,
-      name: 'Emily Davis',
-      designation: 'Data Scientist',
-      location: 'Berlin, Germany',
-    },
-    {
-      id: 5,
-      img: UserImg,
-      name: 'John Doe',
-      designation: 'Software Engineer',
-      location: 'New York, USA',
-    },
-    {
-      id: 6,
-      img: UserImg,
-      name: 'Jane Smith',
-      designation: 'Project Manager',
-      location: 'London, UK',
-    },
-    {
-      id: 7,
-      img: UserImg,
-      name: 'Michael Johnson',
-      designation: 'UI/UX Designer',
-      location: 'San Francisco, USA',
-    },
-    {
-      id: 8,
-      img: UserImg,
-      name: 'Emily Davis',
-      designation: 'Data Scientist',
-      location: 'Berlin, Germany',
-    },
-    {
-      id: 9,
-      img: UserImg, // Replace with actual image path
-      name: 'John Doe',
-      designation: 'Software Engineer',
-      location: 'New York, USA',
-    },
-    {
-      id: 10,
-      img: UserImg,
-      name: 'Jane Smith',
-      designation: 'Project Manager',
-      location: 'London, UK',
-    },
-    {
-      id: 11,
-      img: UserImg,
-      name: 'Michael Johnson',
-      designation: 'UI/UX Designer',
-      location: 'San Francisco, USA',
-    },
-    {
-      id: 12,
-      img: UserImg,
-      name: 'Emily Davis',
-      designation: 'Data Scientist',
-      location: 'Berlin, Germany',
-    },
-    // Add more users as needed
-  ];
+  // Fetch users from Firestore on mount
+  useEffect(() => {
+    const fetchUsers = async () => {
+      try {
+        const querySnapshot = await getDocs(collection(db, "users"));
+        const usersList = querySnapshot.docs.map((doc) => ({
+          id: doc.id,
+          ...doc.data(),
+        }));
+        console.log("Fetched users:", usersList); // Log users for debugging
+        setUsers(usersList);
+      } catch (error) {
+        console.error("Error fetching users: ", error);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchUsers();
+  }, []);
 
   // Filtered users based on search term
   const filteredUsers = users.filter(
     (user) =>
-      user.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      user.designation.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      user.location.toLowerCase().includes(searchTerm.toLowerCase())
+      (user.displayName?.toLowerCase().includes(searchTerm.toLowerCase()) || '') ||
+      (user.designation?.toLowerCase().includes(searchTerm.toLowerCase()) || '') ||
+      (user.location?.toLowerCase().includes(searchTerm.toLowerCase()) || '')
   );
 
   return (
@@ -113,7 +50,7 @@ const Directory = () => {
             <input
               type="text"
               placeholder="Search"
-              className="border-none text-black text-xl rounded-lg px-4 py-2 focus:outline-none  bg-[#F8F9FA] "
+              className="border-none text-black text-xl rounded-lg px-4 py-2 focus:outline-none bg-[#F8F9FA]"
               value={searchTerm} // Bind input to state
               onChange={(e) => setSearchTerm(e.target.value)} // Update state on input change
             />
@@ -128,42 +65,46 @@ const Directory = () => {
         </div>
       </div>
 
-      {/* Grid of Cards */}
-      <div className="grid grid-cols-4 gap-10">
-        {filteredUsers.length > 0 ? (
-          filteredUsers.map((user) => (
-            <div
-              key={user.id}
-              className="rounded-xl p-4 shadow-md hover:shadow-2xl transition-all duration-300 bg-[#fff]"
-            >
-              {/* User Image */}
-              <img
-                src={user.img}
-                alt={user.name}
-                className="w-20 h-20 rounded-full mx-auto mb-4 object-cover"
-              />
-              {/* User Info */}
-              <h2 className="text-xl font-semibold text-center text-gray-800">{user.name}</h2>
-              <p className="text-gray-400 font-bold text-center">{user.designation}</p>
-              <p className="text-gray-400 text-center">{user.location}</p>
-              {/* Icons */}
-              <div className="flex justify-center gap-4 mt-8">
-                <button className="bg-purple text-white px-4 py-3 rounded-lg w-[120px] border border-purple font-medium hover:bg-transparent hover:text-purple hover:border-purple transition-all duration-300">
-                  Visit Profile
-                </button>
-                <button className="text-purple-600 hover:text-purple-800">
-                  <i className="fas fa-phone"></i>
-                </button>
-                <button className="text-purple-600 hover:text-purple-800">
-                  <img className="w-7" src={MessagesImg} alt="Message" />
-                </button>
+      {/* Loading State */}
+      {loading ? (
+        <div className="text-center text-gray-500">Loading users...</div>
+      ) : (
+        <div className="grid grid-cols-4 gap-10">
+          {filteredUsers.length > 0 ? (
+            filteredUsers.map((user) => (
+              <div
+                key={user.id}
+                className="rounded-xl p-4 shadow-md hover:shadow-2xl transition-all duration-300 bg-[#fff]"
+              >
+                {/* User Image */}
+                <img
+                  src={user.photoURL || UserImg} // Use photoURL from Firestore, fallback to default image
+                  alt={user.displayName}
+                  className="w-20 h-20 rounded-full mx-auto mb-4 object-cover"
+                />
+                {/* User Info */}
+                <h2 className="text-xl font-semibold text-center text-gray-800">{user.displayName}</h2>
+                <p className="text-gray-400 font-bold text-center">{user.designation}</p> {/* Display designation */}
+                <p className="text-gray-400 text-center">{user.location}</p> {/* Display location */}
+                {/* Icons */}
+                <div className="flex justify-center gap-4 mt-8">
+                  <button className="bg-purple text-white px-4 py-3 rounded-lg w-[120px] border border-purple font-medium hover:bg-transparent hover:text-purple hover:border-purple transition-all duration-300">
+                    Visit Profile
+                  </button>
+                  <button className="text-purple-600 hover:text-purple-800">
+                    <i className="fas fa-phone"></i>
+                  </button>
+                  <button className="text-purple-600 hover:text-purple-800">
+                    <img className="w-7" src={MessagesImg} alt="Message" />
+                  </button>
+                </div>
               </div>
-            </div>
-          ))
-        ) : (
-          <p className="text-gray-500 col-span-4 text-center">No users found</p>
-        )}
-      </div>
+            ))
+          ) : (
+            <p className="text-gray-500 col-span-4 text-center">No users found</p>
+          )}
+        </div>
+      )}
     </div>
   );
 };

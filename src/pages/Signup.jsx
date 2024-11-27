@@ -5,7 +5,7 @@ import logo from "../assets/googlelogo.png";
 import { useNavigate } from 'react-router-dom';
 import img from "../assets/image-1.png";
 import { toast } from 'react-toastify';
-import { signInWithGoogle } from '../firebase';
+import { signUpWithGoogle } from '../firebase';
 import { createUserWithEmailAndPassword } from 'firebase/auth';
 import { auth } from '../firebase';
 import Button from '../components/ui/button';
@@ -27,9 +27,10 @@ const SignUp = () => {
 
     const handleGoogleSignUp = async () => {
         try {
-            const user = await signInWithGoogle();
+            const user = await signUpWithGoogle();
             console.log(user);
             toast.success("Signed up with Google successfully!");
+            navigate("/dashboard");
         } catch (error) {
             console.error("Google Sign-Up Error:", error);
             toast.error("Google sign-up failed. Please try again.");
