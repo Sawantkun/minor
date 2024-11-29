@@ -25,80 +25,86 @@ import useAuth from '../hooks/AuthContext'; // Make sure the import matches the 
 
 
 const Dashboard = ({ userId }) => {
-    const [showPayPal, setShowPayPal] = useState(true);
-    const [view, setView] = useState('directory');
-    const [isNewUser, setIsNewUser] = useState(true);
-    const [steps, setSteps] = useState(0);
-    const [verification, setVerification] = useState(true); // "" to ge all steps of membership, false for verification denied, true for verification success
-    const [payment, setPayment] = useState(true); // false for the payment method process
-    const [formField, setFormField] = useState({ degree: "" });
-    const { user, userData } = useAuth();
+  const [showPayPal, setShowPayPal] = useState(true);
+  const [view, setView] = useState('directory');
+  const [isNewUser, setIsNewUser] = useState(true);
+  const [steps, setSteps] = useState(0);
+  const [verification, setVerification] = useState(""); // "" to ge all steps of membership, false for verification denied, true for verification success
+  const [payment, setPayment] = useState(true); // false for the payment method process
+  const [formField, setFormField] = useState({ degree: "" });
+  const [selectedUserId, setSelectedUserId] = useState(null);
+  const { user, userData } = useAuth();
 
-    const handlePayPal = () => {
-      setShowPayPal(false);
+  const handlePayPal = () => {
+    setShowPayPal(false);
+  };
+
+  const handleFileUpload = async (file) => {
+    if (!file) {
+      console.error("No file selected");
+      return;
+    }
+
+    const storageRef = ref(storage, `degrees/${file.name}`);
+    try {
+      // Upload the file
+      const snapshot = await uploadBytes(storageRef, file);
+
+      // Get the file's download URL
+      const downloadURL = await getDownloadURL(snapshot.ref);
+
+      console.log("File uploaded successfully. Download URL:", downloadURL);
+
+      // Update state or Firestore with the file URL
+      setFormField({ ...formField, degree: downloadURL });
+    } catch (error) {
+      console.error("File upload failed:", error);
+    }
+  };
+  const renderView = () => {
+    const resetUserId = () => {
+      setSelectedUserId(null);
     };
+    switch (view) {
+      case 'directory':
+        return <Directory onMessageClick={(userId) => { setView('messages'); setSelectedUserId(userId); }} />
+      case 'jobPortal':
+        return <JobPortal />;
+      case 'messages':
+        return <Messages userId={selectedUserId} onResetUserId={resetUserId} />;
+      case 'profile':
+        return <Profile />;
+      case 'notices':
+        return <Notices />;
+      default:
+        return <Directory />;
+    }
+  };
 
-    const handleFileUpload = async (file) => {
-        if (!file) {
-          console.error("No file selected");
-          return;
-        }
+  console.log(selectedUserId)
 
-        const storageRef = ref(storage, `degrees/${file.name}`);
-        try {
-          // Upload the file
-          const snapshot = await uploadBytes(storageRef, file);
+  const handleSubmit = () => {
+    if (steps === 0) {
+      setSteps(1);
+    } else if (steps === 1 && formField.degree !== "") {
+      setSteps(2);
+    } else if (steps === 2) {
+      setSteps(3);
+    }
+  };
 
-          // Get the file's download URL
-          const downloadURL = await getDownloadURL(snapshot.ref);
+  useEffect(() => {
+    if (user) {
+      console.log(user); // Check if the photoURL is available here
+    }
+  }, [user]);
 
-          console.log("File uploaded successfully. Download URL:", downloadURL);
-
-          // Update state or Firestore with the file URL
-          setFormField({ ...formField, degree: downloadURL });
-        } catch (error) {
-          console.error("File upload failed:", error);
-        }
-      };
-    const renderView = () => {
-      switch (view) {
-        case 'directory':
-          return <Directory />;
-        case 'jobPortal':
-          return <JobPortal />;
-        case 'messages':
-          return <Messages />;
-        case 'profile':
-          return <Profile />;
-        case 'notices':
-          return <Notices />;
-        default:
-          return <Directory />;
-      }
-    };
-
-    const handleSubmit = () => {
-      if (steps === 0) {
-        setSteps(1);
-      } else if (steps === 1 && formField.degree !== "") {
-        setSteps(2);
-      } else if (steps === 2) {
-        setSteps(3);
-      }
-    };
-
-    useEffect(() => {
-        if (user) {
-          console.log(user); // Check if the photoURL is available here
-        }
-      }, [user]);
-
-    const buttons = [
-      { label: 'Directory', id: 'directory', icon: DirectoryImg },
-      { label: 'Messages', id: 'messages', icon: MessagesImg },
-      { label: 'Notices', id: 'notices', icon: NoticeImg },
-      { label: 'Job Portal', id: 'jobPortal', icon: JobsImg },
-    ];
+  const buttons = [
+    { label: 'Directory', id: 'directory', icon: DirectoryImg },
+    { label: 'Messages', id: 'messages', icon: MessagesImg },
+    { label: 'Notices', id: 'notices', icon: NoticeImg },
+    { label: 'Job Portal', id: 'jobPortal', icon: JobsImg },
+  ];
   return (
     <div className="flex min-h-screen max-h-full bg-[#F8F9FA]">
       {isNewUser && !payment ? (
@@ -110,18 +116,18 @@ const Dashboard = ({ userId }) => {
               </a>
             </div>
             <div className="flex items-center gap-4  p-4 mt-8 cursor-pointer hover:bg-gray-200 rounded-lg transition-all duration-300" onClick={() => setView('profile')}>
-            <img
-  src={user?.photoURL || "../assets/images/user.png"}
-  alt="User"
-  className="w-14 h-14 rounded-full object-cover"
-/>
+              <img
+                src={user?.photoURL || "../assets/images/user.png"}
+                alt="User"
+                className="w-14 h-14 rounded-full object-cover"
+              />
 
 
-          <div>
-            <p className="text-black text-lg font-semibold">{userData?.displayName || 'John Doe'}</p> {/* Display name from Firestore */}
-            <p className="text-gray-500 text-sm">{userData?.email || 'johndoe@example.com'}</p> {/* Display email from Firestore */}
-          </div>
-        </div>
+              <div>
+                <p className="text-black text-lg font-semibold">{userData?.displayName || 'John Doe'}</p> {/* Display name from Firestore */}
+                <p className="text-gray-500 text-sm">{userData?.email || 'johndoe@example.com'}</p> {/* Display email from Firestore */}
+              </div>
+            </div>
           </div>
           <div className="flex items-center justify-center min-h-screen">
             <div className="bg-white w-1/2 h-1/2 flex items-center justify-center p-6 rounded-2xl">
@@ -165,12 +171,12 @@ const Dashboard = ({ userId }) => {
                             <div className='font-inter font-[400]'>Expand your professional and personal work</div>
                           </div>
                           <Button
-                    className={`w-full mt-10 ${verification === false ? 'hidden' : ''}`}
-                    onClick={handleSubmit}
-                    disabled={!(verification !== "" || steps !== 2)}
-                  >
-                    Become a Member
-                  </Button>
+                            className={`w-full mt-10 ${verification === false ? 'hidden' : ''}`}
+                            onClick={handleSubmit}
+                            disabled={!(verification !== "" || steps !== 2)}
+                          >
+                            Become a Member
+                          </Button>
                         </div>
                       ) : steps === 1 ? (
                         <div className="w-full">
@@ -179,18 +185,18 @@ const Dashboard = ({ userId }) => {
                           </div>
                           <div className="border border-dashed border-gray-700 p-4 mt-4 relative">
                             <input
-  type="file"
-  id="degree"
-  name="degree"
-  className="hidden"
-  onChange={(e) => {
-    const file = e.target.files?.[0];
-    if (file) {
-      handleFileUpload(file); // Call the upload function
-      e.target.value = ""; // Reset input
-    }
-  }}
-/>
+                              type="file"
+                              id="degree"
+                              name="degree"
+                              className="hidden"
+                              onChange={(e) => {
+                                const file = e.target.files?.[0];
+                                if (file) {
+                                  handleFileUpload(file); // Call the upload function
+                                  e.target.value = ""; // Reset input
+                                }
+                              }}
+                            />
 
                             {formField.degree ? (
                               <div className="relative">
@@ -220,12 +226,12 @@ const Dashboard = ({ userId }) => {
                             )}
                           </div>
                           <Button
-                    className={`w-full mt-10 ${verification === false ? 'hidden' : ''}`}
-                    onClick={handleSubmit}
-                    disabled={!(verification !== "" || steps !== 2)}
-                  >
-                    Upload File
-                  </Button>
+                            className={`w-full mt-10 ${verification === false ? 'hidden' : ''}`}
+                            onClick={handleSubmit}
+                            disabled={!(verification !== "" || steps !== 2)}
+                          >
+                            Upload File
+                          </Button>
                         </div>
 
                       ) : steps === 2 && formField.degree !== "" && (
@@ -239,12 +245,12 @@ const Dashboard = ({ userId }) => {
                             <div className='text-gray-700'>This may take 1 - 2 business days.</div>
                           </div>
                           <Button
-                    className={`w-full mt-5 ${verification === false ? 'hidden' : ''}`}
-                    onClick={handleSubmit}
-                    disabled={!(verification !== "" || steps !== 2)}
-                  >
-                    Make Payment
-                  </Button>
+                            className={`w-full mt-5 ${verification === false ? 'hidden' : ''}`}
+                            onClick={handleSubmit}
+                            disabled={!(verification !== "" || steps !== 2)}
+                          >
+                            Make Payment
+                          </Button>
                         </div>
                       )}
                     </>
@@ -257,23 +263,23 @@ const Dashboard = ({ userId }) => {
                             <div className='font-[600] font-inter '>verification Completed</div>
                           </div>
                           <div className=' w-full'>
-                          {showPayPal ? (
-        <Button
-          className={`w-full ${verification === false ? 'hidden' : ''}`}
-          onClick={handlePayPal}
-          disabled={!(verification !== "" || steps !== 2)}
-        >
-          Make payment
-        </Button>
-      ) : (
-        <PayPalButton
-  amount="99.99"
-  onPaymentSuccess={() => {
-    console.log("Payment successful!");
-    setPayment(true); // Update state or navigate as needed
-  }}
-/>    )}
-                </div>
+                            {showPayPal ? (
+                              <Button
+                                className={`w-full ${verification === false ? 'hidden' : ''}`}
+                                onClick={handlePayPal}
+                                disabled={!(verification !== "" || steps !== 2)}
+                              >
+                                Make payment
+                              </Button>
+                            ) : (
+                              <PayPalButton
+                                amount="99.99"
+                                onPaymentSuccess={() => {
+                                  console.log("Payment successful!");
+                                  setPayment(true);
+                                }}
+                              />)}
+                          </div>
                         </div>
                       ) : (
                         <div className=' w-full'>
@@ -324,16 +330,16 @@ const Dashboard = ({ userId }) => {
 
             <div className="flex items-center gap-4 border-t-[1px] p-4 mt-8 cursor-pointer hover:bg-gray-200 rounded-lg transition-all duration-300" onClick={() => setView('profile')}
             >
-                <img
-  src={user?.photoURL || "../assets/images/user.png"}
-  alt="User"
-  className="w-14 h-14 rounded-full object-cover"
-/>
+              <img
+                src={user?.photoURL || "../assets/images/user.png"}
+                alt="User"
+                className="w-14 h-14 rounded-full object-cover"
+              />
               <div>
-              <p className="text-black text-lg font-semibold">{userData?.displayName || 'John Doe'}</p> {/* Display name from Firestore */}
-              <p className="text-gray-500 text-sm">
-  {userData?.email ? `${userData.email.split('@')[0].slice(0, 25)}...` : 'johndoe@example.com'}
-</p>
+                <p className="text-black text-lg font-semibold">{user?.displayName || 'John Doe'}</p> {/* Display name from Firestore */}
+                <p className="text-gray-500 text-sm">
+                  {user?.email ? `${user.email}...` : 'johndoe@example.com'}
+                </p>
               </div>
             </div>
           </div>

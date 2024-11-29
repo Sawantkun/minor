@@ -82,14 +82,6 @@ const Profile = () => {
     navigate("/login");
   };
 
-  const handlePasswordChange = () => {
-    if (password.newPassword === password.confirmPassword) {
-      alert("Password updated successfully!");
-    } else {
-      alert("New password and confirm password do not match!");
-    }
-  };
-
   const handleDeleteAccount = () => {
     if (
       deleteCredentials.email === userInfo.email &&
@@ -103,26 +95,52 @@ const Profile = () => {
     }
   };
 
+  const handlePasswordChange = async () => {
+    if (!user) return;
+    try {
+      const userDocRef = doc(db, "users", user.uid);
+      const userDoc = await getDoc(userDocRef);
+      if (userDoc.exists()) {
+        const userData = userDoc.data();
+        if (userData.password !== password.currentPassword) {
+          alert("Current password is incorrect!");
+          return;
+        }
+        if (password.newPassword !== password.confirmPassword) {
+          alert("New password and confirm password do not match!");
+          return;
+        }
+        await updateDoc(userDocRef, { password: password.newPassword });
+        alert("Password updated successfully!");
+        setPassword({ currentPassword: "", newPassword: "", confirmPassword: "" });
+      } else {
+        alert("User not found!");
+      }
+    } catch (error) {
+      console.error("Error: ", error);
+      alert("An error occurred");
+    }
+  };
+
+
   return (
     <div className="py-4 px-6 ml-[310px] w-full">
       <h1 className="text-3xl font-bold mb-6">Profile Settings</h1>
       <div className="flex gap-4 border-b pb-2 mb-6">
         <button
-          className={`px-4 py-2 ${
-            activeTab === "profile"
-              ? "border-b-2 border-purple bg-gray-200 font-bold rounded-t-lg"
-              : ""
-          }`}
+          className={`px-4 py-2 ${activeTab === "profile"
+            ? "border-b-2 border-purple bg-gray-200 font-bold rounded-t-lg"
+            : ""
+            }`}
           onClick={() => setActiveTab("profile")}
         >
           Profile
         </button>
         <button
-          className={`px-4 py-2 ${
-            activeTab === "security"
-              ? "border-b-2 border-purple bg-gray-200 font-bold rounded-t-lg"
-              : ""
-          }`}
+          className={`px-4 py-2 ${activeTab === "security"
+            ? "border-b-2 border-purple bg-gray-200 font-bold rounded-t-lg"
+            : ""
+            }`}
           onClick={() => setActiveTab("security")}
         >
           Password & Security
@@ -195,18 +213,18 @@ const Profile = () => {
             </div>
           ) : (
             <div className="p-6 shadow-md rounded-lg bg-white">
-                <div className="mb-10">
-                  <label className="block font-medium mb-1">
-                    Profile Picture
-                  </label>
-                  {user?.photoURL && (
-                    <img
-                      src={user.photoURL}
-                      alt="Profile"
-                      className="w-24 h-24 rounded-full mt-4"
-                    />
-                  )}
-                </div>
+              <div className="mb-10">
+                <label className="block font-medium mb-1">
+                  Profile Picture
+                </label>
+                {user?.photoURL && (
+                  <img
+                    src={user.photoURL}
+                    alt="Profile"
+                    className="w-24 h-24 rounded-full mt-4"
+                  />
+                )}
+              </div>
               <div className="grid grid-cols-2 gap-6">
                 <div>
                   <label className="block font-medium mb-1">Designation</label>
