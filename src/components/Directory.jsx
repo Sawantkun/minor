@@ -4,8 +4,10 @@ import { db } from '../firebase'; // Import Firestore initialization from your f
 import MessagesImg from "../assets/svgs/messages.svg";
 import UserImg from "../assets/svgs/avatar.png";
 import SearchImg from "../assets/svgs/search.svg";
+import Modal from './ui/Modal';
+import { useLocation, useNavigate } from 'react-router-dom';
 
-const Directory = () => {
+const Directory = ({ onMessageClick }) => {
   const [searchTerm, setSearchTerm] = useState('');
   const [users, setUsers] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -38,6 +40,15 @@ const Directory = () => {
       (user.designation?.toLowerCase().includes(searchTerm.toLowerCase()) || '') ||
       (user.location?.toLowerCase().includes(searchTerm.toLowerCase()) || '')
   );
+
+  const [isModalOpen, setModalOpen] = useState(false);
+  const [showData, setshowData] = useState("")
+
+  const navigate = useNavigate()
+
+  const handleMessageClick = (userId) => {
+
+  }
 
   return (
     <div className="px-6 py-2 pb-[100px] ml-[310px] w-full">
@@ -78,8 +89,8 @@ const Directory = () => {
               >
                 {/* User Image */}
                 <img
-                  src={user.photoURL || UserImg} // Use photoURL from Firestore, fallback to default image
-                  alt={user.displayName}
+                  src={user?.photoURL || UserImg} // Use photoURL from Firestore, fallback to default image
+                  alt={user?.displayName}
                   className="w-20 h-20 rounded-full mx-auto mb-4 object-cover"
                 />
                 {/* User Info */}
@@ -88,13 +99,13 @@ const Directory = () => {
                 <p className="text-gray-400 text-center">{user.location}</p> {/* Display location */}
                 {/* Icons */}
                 <div className="flex justify-center gap-4 mt-8">
-                  <button className="bg-purple text-white px-4 py-3 rounded-lg w-[120px] border border-purple font-medium hover:bg-transparent hover:text-purple hover:border-purple transition-all duration-300">
+                  <button className="bg-purple text-white px-4 py-3 rounded-lg w-[120px] border border-purple font-medium hover:bg-transparent hover:text-purple hover:border-purple transition-all duration-300" onClick={() => { setModalOpen(true), setshowData(user) }}>
                     Visit Profile
                   </button>
                   <button className="text-purple-600 hover:text-purple-800">
                     <i className="fas fa-phone"></i>
                   </button>
-                  <button className="text-purple-600 hover:text-purple-800">
+                  <button className="text-purple-600 hover:text-purple-800" onClick={() => onMessageClick(user.id)}>
                     <img className="w-7" src={MessagesImg} alt="Message" />
                   </button>
                 </div>
@@ -105,6 +116,62 @@ const Directory = () => {
           )}
         </div>
       )}
+
+      <Modal isOpen={isModalOpen} onClose={() => setModalOpen(false)}>
+        <Modal.Header>
+          <div className=' flex items-center gap-4 w-full'>
+            <div className=' w-14 h-14 flex-shrink-0'>
+              <img
+                src={showData?.photoURL || UserImg}
+                alt={showData?.displayName}
+                className=" w-full h-full rounded-full object-cover"
+              />
+            </div>
+            <div>
+              <div className=' text-lg font-semibold'>{showData?.displayName}</div>
+              <div className='text-sm font-semibold text-gray-700'>{showData?.designation}</div>
+            </div>
+          </div>
+        </Modal.Header>
+        <Modal.Body>
+          <div className=' w-full flex flex-col gap-3'>
+            <div className='  flex items-center justify-between w-full'>
+              <div className='  font-medium'>Company</div>
+              <div className=' font-medium text-gray-900'>{showData?.companyName}</div>
+            </div>
+            <div className='my-3 border-b border-gray-200 w-full'></div>
+            <div className=' flex items-center justify-between w-full'>
+              <div className='  font-medium'>Experience</div>
+              <div className=' font-medium text-gray-900'>{showData?.experience}</div>
+            </div>
+            <div className='my-3 border-b border-gray-200 w-full'></div>
+            <div className=' flex items-center justify-between w-full'>
+              <div className='  font-medium'>Linkedin</div>
+              <a className=' font-medium text-blue-500 underline' href={showData?.linkedinId}>{showData?.linkedinId}</a>
+            </div>
+            <div className='my-3 border-b border-gray-200 w-full'></div>
+            <div className=' flex items-center justify-between w-full'>
+              <div className='  font-medium'>Email</div>
+              <div className=' font-medium text-gray-900'>{showData?.email}</div>
+            </div>
+            <div className='my-3 border-b border-gray-200 w-full'></div>
+            <div className=' flex items-center justify-between w-full'>
+              <div className='  font-medium'>Location</div>
+              <div className=' font-medium text-gray-900'>{showData?.designation}</div>
+            </div>
+            <div className='my-3 border-b border-gray-200 w-full'></div>
+            <div className=' flex items-center justify-between w-full'>
+              <div className='  font-medium'>Qualification</div>
+              <div className=' font-medium text-gray-900'>{showData?.educationLevel}</div>
+            </div>
+            <div className='my-3 border-b border-gray-200 w-full'></div>
+            <div className=' flex items-center justify-between w-full'>
+              <div className='  font-medium'>Graduation Year</div>
+              <div className=' font-medium text-gray-900'>{showData?.graduationYear}</div>
+            </div>
+          </div>
+        </Modal.Body>
+      </Modal>
     </div>
   );
 };

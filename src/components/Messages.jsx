@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from "react";
 import { db, storage } from "../firebase";
-import { doc, setDoc, collection, getDocs, query, orderBy, onSnapshot, addDoc } from "firebase/firestore";
+import { doc, setDoc, collection, getDocs, query, orderBy, onSnapshot, addDoc, getDoc } from "firebase/firestore";
 import { ref, uploadBytes, getDownloadURL } from "firebase/storage";
 import useAuth from "../hooks/AuthContext";
 import SearchImg from "../assets/svgs/search.svg";
@@ -8,9 +8,9 @@ import UserImg from "../assets/svgs/avatar.png";
 import SendImg from "../assets/svgs/send.svg";
 import AttachImg from "../assets/svgs/attach.svg";
 import BackgroundImg from "../assets/images/background.png";
-import { Timestamp } from 'firebase/firestore'; // Import Timestamp to type-check if needed
+import { Timestamp } from "firebase/firestore";
 
-const Messages = () => {
+const Messages = ({ userId, onResetUserId }) => {
   const { user } = useAuth();
   const [currentChat, setCurrentChat] = useState(null);
   const [message, setMessage] = useState("");
@@ -18,16 +18,15 @@ const Messages = () => {
   const [messages, setMessages] = useState([]);
   const [searchTerm, setSearchTerm] = useState("");
   const [chatList, setChatList] = useState([]);
-  const [loading, setLoading] = useState(false);  // State to handle loading
+  const [loading, setLoading] = useState(false);
 
-  // Function to generate unique chat ID based on user IDs
   const getChatId = (user1, user2) => {
     const ids = [user1, user2];
-    ids.sort();  // Sort the IDs lexicographically
-    return ids.join("_");  // Join them to form a unique chat ID
+    ids.sort();
+    return ids.join("_");
   };
 
-  // Fetching chats
+  // Fetch chats
   useEffect(() => {
     const fetchChats = async () => {
       if (user) {
@@ -51,11 +50,11 @@ const Messages = () => {
             const lastActive = userData.lastActive || "Online";
 
             chats.push({
-                ...userData,
-                lastMessage,
-                lastActive,
-                id: doc.id,
-              });
+              ...userData,
+              lastMessage,
+              lastActive,
+              id: doc.id,
+            });
           }
         }
 
@@ -66,10 +65,31 @@ const Messages = () => {
     fetchChats();
   }, [user]);
 
-  // Listening to messages for the current chat
+  // Fetch receiving user and set as currentChat
+  useEffect(() => {
+    const fetchReceivingUser = async () => {
+      if (userId) {
+        try {
+          const userDoc = await getDoc(doc(db, "users", userId));
+          if (userDoc.exists()) {
+            setCurrentChat({ ...userDoc.data(), id: userDoc.id });
+          } else {
+            console.error("No such user found for userId:", userId);
+          }
+        } catch (error) {
+          console.error("Error fetching user:", error);
+        }
+      }
+    };
+
+    fetchReceivingUser();
+  }, [userId]);
+
+
+  // Listen to messages for the current chat
   useEffect(() => {
     if (currentChat?.id) {
-      const chatId = getChatId(user.uid, currentChat.id);  // Generate unique chat ID
+      const chatId = getChatId(user.uid, currentChat.id);
       const messagesRef = collection(db, `chats/${chatId}/messages`);
       const q = query(messagesRef, orderBy("timestamp"));
       const unsubscribe = onSnapshot(q, (querySnapshot) => {
@@ -77,21 +97,16 @@ const Messages = () => {
         querySnapshot.forEach((doc) => {
           messagesData.push(doc.data());
         });
-        setMessages(messagesData);  // Set the messages for the chat
+        setMessages(messagesData);
       });
-      return () => unsubscribe();  // Cleanup on unmount
+      return () => unsubscribe();
     }
   }, [currentChat]);
-
-  const updateLastActive = async () => {
-    const userRef = doc(db, "users", user.uid);
-    await setDoc(userRef, { lastActive: new Date() }, { merge: true });
-  };
 
   const handleSendMessage = async () => {
     if (!message && !file) return;
 
-    setLoading(true); // Start loading state
+    setLoading(true);
 
     let fileUrl = null;
 
@@ -111,14 +126,13 @@ const Messages = () => {
       senderId: user.uid,
       text: file ? ` File: ${file.name}` : message,
       file: fileUrl,
-      timestamp: Timestamp.now(),  // Use Firestore Timestamp for accurate sorting
+      timestamp: Timestamp.now(),
     };
 
     if (currentChat?.id) {
       try {
-        const chatId = getChatId(user.uid, currentChat.id);  // Generate unique chat ID
+        const chatId = getChatId(user.uid, currentChat.id);
         await addDoc(collection(db, `chats/${chatId}/messages`), newMessage);
-        await updateLastActive();  // Update last active time
         setMessage("");
         setFile(null);
       } catch (error) {
@@ -126,7 +140,7 @@ const Messages = () => {
       }
     }
 
-    setLoading(false); // End loading state
+    setLoading(false);
   };
 
   const filteredChatList = chatList.filter((chat) =>
@@ -151,7 +165,7 @@ const Messages = () => {
           {filteredChatList.map((chat) => (
             <div
               key={chat.id}
-              onClick={() => setCurrentChat(chat)}
+              onClick={() => { setCurrentChat(chat), onResetUserId() }}
               className={`flex items-center gap-4 p-4 hover:bg-gray-200 cursor-pointer ${currentChat?.id === chat.id ? "bg-gray-200" : ""}`}
             >
               <img src={chat.photoURL || UserImg} alt={chat.displayName} className="w-12 h-12 rounded-full object-cover" />
@@ -162,7 +176,6 @@ const Messages = () => {
             </div>
           ))}
         </div>
-
         <div className="w-2/3 flex flex-col relative">
           {currentChat ? (
             <div className="bg-purple text-white px-4 py-[17px] flex items-center gap-4 rounded-tr-md">
@@ -172,7 +185,11 @@ const Messages = () => {
                 <p className="text-sm text-gray-200">Online</p>
               </div>
             </div>
-          ):( <span className="bg-purple text-2xl absolute top-[45%] left-[40%] font-bold  text-white px-6 py-3 rounded-lg">Click On A Chat !</span>)}
+          ) : (
+            <span className="bg-purple text-2xl absolute top-[45%] left-[40%] font-bold  text-white px-6 py-3 rounded-lg">
+              Click On A Chat!
+            </span>
+          )}
 
           <div
             className="flex-1 p-4 overflow-y-auto bg-[#eee]"
@@ -205,49 +222,44 @@ const Messages = () => {
                   ) : (
                     <p className="text-sm">{msg.text}</p>
                   )}
-
                   <p className="text-xs text-gray-400 text-right">
                     {msg.timestamp && msg.timestamp instanceof Timestamp
-                      ? new Date(msg.timestamp.toDate()).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
-                      : "Invalid timestamp"}
+                      ? new Date(msg.timestamp.toMillis()).toLocaleString()
+                      : ""}
                   </p>
                 </div>
               </div>
             ))}
           </div>
-
-         {currentChat && (
-             <div className="bg-white p-4 flex items-center gap-2 border-t border-gray-300 rounded-br-md relative">
-             {file && (
-               <span className="text-sm text-gray-600 bg-[#FFFFFF] p-2 truncate max-w-[150px] absolute left-0 top-[-32px]" title={file.name}>
-                 {file.name}
-               </span>
-             )}
-             <input
-               type="file"
-               className="hidden"
-               onChange={(e) => {
-                 const selectedFile = e.target.files[0];
-                 if (selectedFile) {
-                   setFile(selectedFile);
-                 }
-               }}
-             />
-             <button onClick={() => document.querySelector('input[type="file"]').click()}>
-               <img src={AttachImg} alt="Attach" className="w-6 h-6" />
-             </button>
-             <input
-               type="text"
-               value={message}
-               onChange={(e) => setMessage(e.target.value)}
-               placeholder="Type a message"
-               className="w-full py-2 px-4 rounded-lg border border-gray-300 focus:outline-none"
-             />
-             <button onClick={handleSendMessage} className={`bg-purple p-2 rounded-full ${loading ? 'opacity-50 cursor-not-allowed' : ''}`} disabled={loading}>
-               {loading ? <span>Sending...</span> : <img src={SendImg} alt="Send" className="w-6 h-6" />}
-             </button>
-           </div>
-         )}
+          {currentChat && (
+            <div className="flex items-center bg-white p-4 border-t gap-4">
+              <label>
+                <input
+                  type="file"
+                  onChange={(e) => setFile(e.target.files[0])}
+                  className="hidden"
+                />
+                <img
+                  src={AttachImg}
+                  alt="Attach"
+                  className="w-8 h-8 opacity-50 cursor-pointer"
+                />
+              </label>
+              <textarea
+                placeholder="Type a message"
+                className="flex-1 border rounded-lg px-4 py-2 focus:outline-none resize-none"
+                value={message}
+                onChange={(e) => setMessage(e.target.value)}
+              />
+              <button
+                disabled={loading}
+                onClick={handleSendMessage}
+                className={`flex items-center justify-center w-10 h-10 rounded-full ${loading ? "bg-gray-300" : "bg-purple"} `}
+              >
+                <img src={SendImg} alt="Send" className="w-6 h-6" />
+              </button>
+            </div>
+          )}
         </div>
       </div>
     </div>
