@@ -34,6 +34,7 @@ const Directory = ({ onMessageClick }) => {
   }, []);
 
   // Filtered users based on search term
+
   const filteredUsers = users.filter(
     (user) =>
       (user.displayName?.toLowerCase().includes(searchTerm.toLowerCase()) || '') ||
@@ -50,6 +51,8 @@ const Directory = ({ onMessageClick }) => {
 
   }
 
+  console.log(users)
+
   return (
     <div className="px-6 py-2 pb-[100px] ml-[310px] w-full">
       {/* Top Bar */}
@@ -63,7 +66,8 @@ const Directory = ({ onMessageClick }) => {
               placeholder="Search"
               className="border-none text-black text-xl rounded-lg px-4 py-2 focus:outline-none bg-[#F8F9FA]"
               value={searchTerm} // Bind input to state
-              onChange={(e) => setSearchTerm(e.target.value)} // Update state on input change
+              onChange={(e) => setSearchTerm(e.target.value)}
+            // Update state on input change
             />
           </div>
           <div className="border border-gray-300 rounded-lg px-4 py-2 outline-none cursor-pointer text-xl bg-gray-300">
@@ -89,9 +93,10 @@ const Directory = ({ onMessageClick }) => {
               >
                 {/* User Image */}
                 <img
-                  src={user?.photoURL || UserImg} // Use photoURL from Firestore, fallback to default image
-                  alt={user?.displayName}
+                  src={user?.photoURL || UserImg}
+                  alt=""
                   className="w-20 h-20 rounded-full mx-auto mb-4 object-cover"
+                  loading="lazy"
                 />
                 {/* User Info */}
                 <h2 className="text-xl font-semibold text-center text-gray-800">{user.displayName}</h2>

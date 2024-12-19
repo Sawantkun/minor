@@ -19,6 +19,7 @@ import CloseIcon from '@mui/icons-material/Close';
 import PayPalButton from '../components/PaypalButton';
 import { ref, uploadBytes, getDownloadURL } from "firebase/storage";
 import { storage } from "../firebase";
+import userImg from "../assets/svgs/avatar.png"
 
 // In Dashboard.jsx
 import useAuth from '../hooks/AuthContext'; // Make sure the import matches the default export
@@ -61,17 +62,16 @@ const Dashboard = ({ userId }) => {
       console.error("File upload failed:", error);
     }
   };
+
+
   const renderView = () => {
-    const resetUserId = () => {
-      setSelectedUserId(null);
-    };
     switch (view) {
       case 'directory':
-        return <Directory onMessageClick={(userId) => { setView('messages'); setSelectedUserId(userId); }} />
+        return <Directory onMessageClick={(userId) => { setView('messages'); setSelectedUserId(userId); }} />;
       case 'jobPortal':
         return <JobPortal />;
       case 'messages':
-        return <Messages userId={selectedUserId} onResetUserId={resetUserId} />;
+        return <Messages userId={selectedUserId} onResetUserId={() => setSelectedUserId(null)} />;
       case 'profile':
         return <Profile />;
       case 'notices':
@@ -80,8 +80,6 @@ const Dashboard = ({ userId }) => {
         return <Directory />;
     }
   };
-
-  console.log(selectedUserId)
 
   const handleSubmit = () => {
     if (steps === 0) {
@@ -93,12 +91,6 @@ const Dashboard = ({ userId }) => {
     }
   };
 
-  useEffect(() => {
-    if (user) {
-      console.log(user); // Check if the photoURL is available here
-    }
-  }, [user]);
-
   const buttons = [
     { label: 'Directory', id: 'directory', icon: DirectoryImg },
     { label: 'Messages', id: 'messages', icon: MessagesImg },
@@ -106,7 +98,7 @@ const Dashboard = ({ userId }) => {
     { label: 'Job Portal', id: 'jobPortal', icon: JobsImg },
   ];
   return (
-    <div className="flex min-h-screen max-h-full bg-[#F8F9FA]">
+    <div className=" min-h-screen max-h-full bg-[#F8F9FA] grid grid-cols-[220px_fr]">
       {isNewUser && !payment ? (
         <div className="w-full flex flex-col h-full">
           <div className='w-full flex items-center px-8 py-4 justify-between fixed'>
@@ -300,12 +292,12 @@ const Dashboard = ({ userId }) => {
         </div>
       ) : (
         <>
-          <div className="w-[310px]  text-white flex flex-col px-6 py-4 border-r-[1px] justify-between fixed bg-[#F8F9FA] h-full">
+          <div className="text-white flex flex-col px-6 py-4 border-r-[1px] justify-between fixed bg-[#F8F9FA] h-full">
             <div>
               {/* Logo */}
               <div className="w-[270px] object-cover flex-shrink-0 mb-10">
                 <a href="/">
-                  <img src={logo} alt="Alumni" className="w-full h-full object-cover border-b-[1px] pb-5" />
+                  <img src={logo} alt="Alumni" className="w-full h-full object-cover border-b-[1px] pb-5" loading="lazy" />
                 </a>
               </div>
 
@@ -331,8 +323,8 @@ const Dashboard = ({ userId }) => {
             <div className="flex items-center gap-4 border-t-[1px] p-4 mt-8 cursor-pointer hover:bg-gray-200 rounded-lg transition-all duration-300" onClick={() => setView('profile')}
             >
               <img
-                src={user?.photoURL || "../assets/images/user.png"}
-                alt="User"
+                src={user?.photoURL || userImg}
+                alt={userImg}
                 className="w-14 h-14 rounded-full object-cover"
               />
               <div>
@@ -343,7 +335,7 @@ const Dashboard = ({ userId }) => {
               </div>
             </div>
           </div>
-          <div className="w-4/5 p-4">
+          <div className="w-4/5 p-4 flex flex-col">
             {renderView()}
           </div>
         </>
