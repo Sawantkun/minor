@@ -6,6 +6,7 @@ import 'react-toastify/dist/ReactToastify.css'; //
 import "./App.css"
 import SignUp from './pages/Signup';
 import Login from './pages/Login'
+import Admin from './pages/Admin/Admin'
 import Profile from './components/Profile'
 import { PayPalScriptProvider } from "@paypal/react-paypal-js";
 
@@ -28,6 +29,7 @@ const App = () => {
         <Route path='/signup' element={<SignUp />} />
         <Route path='/profile' element={<Profile />} />
         <Route path='/dashboard' element={<Dashboard />} />
+        <Route path='/admin' element={<Admin />} />
         <Route path='/login' element={<Login />} />
         <Route path='/' element={<Home />} />
       </Routes>

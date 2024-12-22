@@ -27,7 +27,7 @@ const SignIn = () => {
             console.log("User logged in:", user);
             // Proceed to dashboard without updating Firestore
             toast.success("Signed in with Google successfully!");
-            navigate("/dashboard");
+            navigate("/admin");
 
         } catch (error) {
             console.error("Google sign-in error:", error);
