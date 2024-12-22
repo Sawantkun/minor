@@ -333,13 +333,15 @@ const Dashboard = ({ userId }) => {
               <img
                 src={user?.photoURL || "../assets/images/user.png"}
                 alt="User"
-                className="w-14 h-14 rounded-full object-cover"
+                className="w-10 h-10 rounded-full object-cover"
               />
               <div>
                 <p className="text-black text-lg font-semibold">{user?.displayName || 'John Doe'}</p> {/* Display name from Firestore */}
                 <p className="text-gray-500 text-sm">
-                  {user?.email ? `${user.email}...` : 'johndoe@example.com'}
-                </p>
+      {user?.email
+        ? `${user.email.length > 20 ? user.email.substring(0, 20) + "..." : user.email}`
+        : "johndoe@example.com"}
+    </p>
               </div>
             </div>
           </div>
