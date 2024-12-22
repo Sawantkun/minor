@@ -84,16 +84,20 @@ const Dashboard = () => {
     className="w-10 h-10 rounded-full object-cover"
   />
   <div>
-    <p className="text-black text-lg font-semibold">
+    <p className="text-black text-lg font-semibold flex items-center gap-2 relative">
       {user?.displayName || "John Doe"}
+      <span className="text-xs text-purple border border-purple px-2 py-1 rounded-md font-medium absolute right-[0px] top-0">
+        Admin
+      </span>
     </p>
     <p className="text-gray-500 text-sm">
       {user?.email
-        ? `${user.email.length > 20 ? user.email.substring(0, 20) + "..." : user.email}`
+        ? `${user.email.length > 20 ? user.email.substring(0, 23) + "..." : user.email}`
         : "johndoe@example.com"}
     </p>
   </div>
 </div>
+
 
       </div>
 
