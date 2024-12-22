@@ -98,7 +98,7 @@ const Dashboard = ({ userId }) => {
     { label: 'Job Portal', id: 'jobPortal', icon: JobsImg },
   ];
   return (
-    <div className=" min-h-screen max-h-full bg-[#F8F9FA] grid grid-cols-[220px_fr]">
+    <div className="flex  min-h-screen max-h-full bg-[#F8F9FA]">
       {isNewUser && !payment ? (
         <div className="w-full flex flex-col h-full">
           <div className='w-full flex items-center px-8 py-4 justify-between fixed'>
