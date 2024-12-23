@@ -9,6 +9,7 @@ import { signUpWithGoogle } from '../firebase';
 import { createUserWithEmailAndPassword } from 'firebase/auth';
 import { auth } from '../firebase';
 import Button from '../components/ui/button';
+import useAuth from '../hooks/AuthContext';
 
 const SignUp = () => {
     const [visibility, setVisibility] = useState({
@@ -24,13 +25,13 @@ const SignUp = () => {
     });
 
     const navigate = useNavigate();
+    const adminEmail = "kseth0808@gmail.com";
 
     const handleGoogleSignUp = async () => {
         try {
             const user = await signUpWithGoogle();
-            console.log(user);
             toast.success("Signed up with Google successfully!");
-            navigate("/dashboard");
+            adminEmail === user.email ? navigate("/admin") : navigate("/dashboard")
         } catch (error) {
             console.error("Google Sign-Up Error:", error);
             toast.error("Google sign-up failed. Please try again.");
@@ -59,13 +60,7 @@ const SignUp = () => {
             // Create a new user with Firebase Authentication
             const userCredential = await createUserWithEmailAndPassword(auth, formField.email, formField.password);
             const user = userCredential.user;
-
-            // Redirect to a different page (e.g., Home page)
-            navigate("/dashboard", {
-                state: { newUser: true },
-            });
-
-            // Optionally show a success message or save user info in the app
+            adminEmail === user.email ? navigate("/admin") : navigate("/dashboard")
             toast.success("Account created successfully!");
         } catch (error) {
             // Handle Firebase errors (e.g., weak password, invalid email)

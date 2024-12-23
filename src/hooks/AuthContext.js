@@ -1,41 +1,51 @@
-// src/hooks/AuthContext.js
-
 import { useState, useEffect } from 'react';
-import { auth, db } from '../firebase'; // Import Firebase config and Firestore functions
-import { getDoc, doc } from 'firebase/firestore'; // Import getDoc to fetch data
+import { auth, db } from '../firebase'; // Firebase config and Firestore functions
+import { getDoc, doc } from 'firebase/firestore'; // Firestore functions
+import { onAuthStateChanged } from 'firebase/auth';
 
 const useAuth = () => {
-  const [user, setUser] = useState(null);
   const [userData, setUserData] = useState(null);
+  const [isNewUser, setIsNewUser] = useState("");
+  const [isAdmin, setIsAdmin] = useState(false);
+
+  const adminEmail = 'kseth0808@gmail.com';
 
   useEffect(() => {
-    const unsubscribe = auth.onAuthStateChanged(async (authUser) => {
-      if (authUser) {
-        setUser(authUser);
-        try {
-          // Fetch user data from Firestore (don't update it)
-          const userRef = doc(db, 'users', authUser.uid);
-          const docSnap = await getDoc(userRef);
-
-          if (docSnap.exists()) {
-            setUserData(docSnap.data()); // Set user data without modifying Firestore
-          } else {
-            console.error("No user data found in 'users' collection.");
-            setUserData(null); // Clear userData if not found
-          }
-        } catch (error) {
-          console.error("Error fetching user data:", error);
+    const checkIfUserExists = async (uid) => {
+      try {
+        const userDocRef = doc(db, 'users', uid);
+        const userDoc = await getDoc(userDocRef);
+        if (userDoc.exists()) {
+          setIsNewUser(false);
+        } else {
+          setIsNewUser(true);
         }
+      } catch (error) {
+        console.error("Error checking user existence: ", error);
+      }
+    };
+
+    const unsubscribe = onAuthStateChanged(auth, (currentUser) => {
+      if (currentUser) {
+        setUserData(currentUser);
+        if (currentUser.email === adminEmail) {
+          setIsAdmin(true);
+        } else {
+          setIsAdmin(false);
+        }
+
+        checkIfUserExists(currentUser.uid);
       } else {
-        setUser(null);
         setUserData(null);
+        setIsNewUser("");
+        setIsAdmin(false);
       }
     });
 
-    return unsubscribe;
+    return () => unsubscribe();
   }, []);
 
-  return { user, userData };
+  return { userData, isNewUser, isAdmin };
 };
 
-export default useAuth; // Ensure useAuth is exported as default
+export default useAuth;

@@ -28,13 +28,13 @@ import useAuth from '../hooks/AuthContext'; // Make sure the import matches the 
 const Dashboard = ({ userId }) => {
   const [showPayPal, setShowPayPal] = useState(true);
   const [view, setView] = useState('directory');
-  const [isNewUser, setIsNewUser] = useState(true);
+
   const [steps, setSteps] = useState(0);
-  const [verification, setVerification] = useState(""); // "" to ge all steps of membership, false for verification denied, true for verification success
-  const [payment, setPayment] = useState(true); // false for the payment method process
+  const [verification, setVerification] = useState("");
+  const [payment, setPayment] = useState(true);
   const [formField, setFormField] = useState({ degree: "" });
   const [selectedUserId, setSelectedUserId] = useState(null);
-  const { user, userData } = useAuth();
+  const { user, userData, isNewUser } = useAuth();
 
   const handlePayPal = () => {
     setShowPayPal(false);
@@ -62,7 +62,6 @@ const Dashboard = ({ userId }) => {
       console.error("File upload failed:", error);
     }
   };
-
 
   const renderView = () => {
     switch (view) {
@@ -97,6 +96,7 @@ const Dashboard = ({ userId }) => {
     { label: 'Notices', id: 'notices', icon: NoticeImg },
     { label: 'Job Portal', id: 'jobPortal', icon: JobsImg },
   ];
+
   return (
     <div className="flex  min-h-screen max-h-full bg-[#F8F9FA]">
       {isNewUser && !payment ? (
@@ -285,7 +285,6 @@ const Dashboard = ({ userId }) => {
                     </>
                   )}
                 </div>
-
               </div>
             </div>
           </div>
@@ -323,14 +322,14 @@ const Dashboard = ({ userId }) => {
             <div className="flex items-center gap-4 border-t-[1px] p-4 mt-8 cursor-pointer hover:bg-gray-200 rounded-lg transition-all duration-300" onClick={() => setView('profile')}
             >
               <img
-                src={user?.photoURL || userImg}
+                src={userData?.photoURL || userImg}
                 alt={userImg}
                 className="w-14 h-14 rounded-full object-cover"
               />
               <div>
-                <p className="text-black text-lg font-semibold">{user?.displayName || 'John Doe'}</p> {/* Display name from Firestore */}
+                <p className="text-black text-lg font-semibold">{userData?.displayName || 'John Doe'}</p>
                 <p className="text-gray-500 text-sm">
-                  {user?.email ? `${user.email}...` : 'johndoe@example.com'}
+                  {userData?.email ? `${userData.email}...` : 'johndoe@example.com'}
                 </p>
               </div>
             </div>

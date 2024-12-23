@@ -10,6 +10,7 @@ import Visibility from '@mui/icons-material/Visibility';
 import VisibilityOff from '@mui/icons-material/VisibilityOff';
 import img from "../assets/image.png";
 import Button from '../components/ui/button';
+import useAuth from '../hooks/AuthContext';
 
 const SignIn = () => {
     const [visibility, setVisibility] = useState(false);
@@ -20,20 +21,21 @@ const SignIn = () => {
     const [emailForReset, setEmailForReset] = useState("");
 
     const navigate = useNavigate();
+    const { isAdmin } = useAuth()
+
+    const adminEmail = "kseth0808@gmail.com";
 
     const handleGoogleSignIn = async () => {
         try {
             const user = await signInWithGoogle();
-            console.log("User logged in:", user);
-            // Proceed to dashboard without updating Firestore
-            toast.success("Signed in with Google successfully!");
-            navigate("/admin");
-
+            adminEmail === user?.email ? navigate("/admin") : navigate("/dashboard")
+            toast.success("Login successful.");
         } catch (error) {
             console.error("Google sign-in error:", error);
             toast.error("Google sign-in failed. Please try again.");
         }
     };
+
     const handleSignIn = async (e) => {
         e.preventDefault();
         if (!formField.email || !formField.password) {
@@ -42,9 +44,8 @@ const SignIn = () => {
         }
         try {
             const user = await signInWithEmailAndPassword(auth, formField.email, formField.password);
-            console.log(user)
+            adminEmail === user?.email ? navigate("/admin") : navigate("/dashboard")
             toast.success("Signed in successfully!");
-            navigate("/dashboard", { state: { newUser: false } });
         } catch (error) {
             toast.error(error.message);
         }
