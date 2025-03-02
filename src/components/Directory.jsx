@@ -5,35 +5,33 @@ import MessagesImg from "../assets/svgs/messages.svg";
 import UserImg from "../assets/svgs/avatar.png";
 import SearchImg from "../assets/svgs/search.svg";
 import Modal from './ui/Modal';
-import { useLocation, useNavigate } from 'react-router-dom';
 
 const Directory = ({ onMessageClick }) => {
+
   const [searchTerm, setSearchTerm] = useState('');
   const [users, setUsers] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [isModalOpen, setModalOpen] = useState(false);
+  const [showData, setshowData] = useState("")
 
   // Fetch users from Firestore on mount
   useEffect(() => {
     const fetchUsers = async () => {
+      setLoading(true)
       try {
         const querySnapshot = await getDocs(collection(db, "users"));
         const usersList = querySnapshot.docs.map((doc) => ({
           id: doc.id,
           ...doc.data(),
         }));
-        console.log("Fetched users:", usersList); // Log users for debugging
         setUsers(usersList);
+        setLoading(false);
       } catch (error) {
         console.error("Error fetching users: ", error);
-      } finally {
-        setLoading(false);
       }
     };
-
     fetchUsers();
   }, []);
-
-  // Filtered users based on search term
 
   const filteredUsers = users.filter(
     (user) =>
@@ -41,17 +39,6 @@ const Directory = ({ onMessageClick }) => {
       (user.designation?.toLowerCase().includes(searchTerm.toLowerCase()) || '') ||
       (user.location?.toLowerCase().includes(searchTerm.toLowerCase()) || '')
   );
-
-  const [isModalOpen, setModalOpen] = useState(false);
-  const [showData, setshowData] = useState("")
-
-  const navigate = useNavigate()
-
-  const handleMessageClick = (userId) => {
-
-  }
-
-  console.log(users)
 
   return (
     <div className="px-6 py-2 pb-[100px] ml-[310px] w-full">
@@ -70,9 +57,9 @@ const Directory = ({ onMessageClick }) => {
             // Update state on input change
             />
           </div>
-          <div className="border border-gray-300 rounded-lg px-4 py-2 outline-none cursor-pointer text-xl bg-gray-300">
-            <select className="outline-none cursor-pointer bg-gray-300">
-              <option value="">Filter</option>
+          <div className="flex items-center bg-gray-300 px-4 py-2 rounded-lg cursor-pointer">
+            <select className="flex-1 outline-none cursor-pointer bg-transparent pr-6 text-xl">
+              <option value="" disabled selected>Filter</option>
               <option value="designation">Designation</option>
               <option value="location">Location</option>
             </select>
@@ -85,37 +72,31 @@ const Directory = ({ onMessageClick }) => {
         <div className="text-center text-gray-500">Loading users...</div>
       ) : (
         <div className="grid grid-cols-4 gap-10">
-          {filteredUsers.length > 0 ? (
-            filteredUsers.map((user) => (
-              <div
-                key={user.id}
-                className="rounded-xl p-4 shadow-md hover:shadow-2xl transition-all duration-300 bg-[#fff]"
-              >
-                {/* User Image */}
-                <img
-                  src={user?.photoURL || UserImg}
-                  alt=""
-                  className="w-20 h-20 rounded-full mx-auto mb-4 object-cover"
-                  loading="lazy"
-                />
-                {/* User Info */}
-                <h2 className="text-xl font-semibold text-center text-gray-800">{user.displayName}</h2>
-                <p className="text-gray-400 font-bold text-center">{user.designation}</p> {/* Display designation */}
-                <p className="text-gray-400 text-center">{user.location}</p> {/* Display location */}
-                {/* Icons */}
-                <div className="flex justify-center gap-4 mt-8">
-                  <button className="bg-purple text-white px-4 py-3 rounded-lg w-[120px] border border-purple font-medium hover:bg-transparent hover:text-purple hover:border-purple transition-all duration-300" onClick={() => { setModalOpen(true), setshowData(user) }}>
-                    Visit Profile
-                  </button>
-                  <button className="text-purple-600 hover:text-purple-800">
-                    <i className="fas fa-phone"></i>
-                  </button>
-                  <button className="text-purple-600 hover:text-purple-800" onClick={() => onMessageClick(user.id)}>
-                    <img className="w-7" src={MessagesImg} alt="Message" />
-                  </button>
-                </div>
+          {filteredUsers.length > 0 ? (filteredUsers.map((user) => (
+            <div key={user.id} className="rounded-xl p-4 shadow-md hover:shadow-2xl transition-all duration-300 bg-[#fff]">
+              <img
+                src={user.photoURL || UserImg}
+                alt="User Profile"
+                className="w-20 h-20 rounded-full mx-auto mb-4 object-cover"
+                referrerPolicy="no-referrer"
+              />
+              <h2 className="text-xl font-semibold text-center text-gray-800">{user.displayName}</h2>
+              <p className="text-gray-400 font-bold text-center">{user.designation}</p> {/* Display designation */}
+              <p className="text-gray-400 text-center">{user.location}</p> {/* Display location */}
+              {/* Icons */}
+              <div className="flex justify-center gap-4 mt-8">
+                <button className="bg-purple text-white px-4 py-3 rounded-lg w-[120px] border border-purple font-medium hover:bg-transparent hover:text-purple hover:border-purple transition-all duration-300" onClick={() => { setModalOpen(true), setshowData(user) }}>
+                  Visit Profile
+                </button>
+                <button className="text-purple-600 hover:text-purple-800">
+                  <i className="fas fa-phone"></i>
+                </button>
+                <button className="text-purple-600 hover:text-purple-800" onClick={() => onMessageClick(user.id)}>
+                  <img className="w-7" src={MessagesImg} alt="Message" />
+                </button>
               </div>
-            ))
+            </div>
+          ))
           ) : (
             <p className="text-gray-500 col-span-4 text-center">No users found</p>
           )}

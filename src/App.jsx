@@ -10,7 +10,7 @@ import Admin from './pages/Admin/Admin';
 import Profile from './components/Profile';
 import Error from './pages/Error';
 import { PayPalScriptProvider } from '@paypal/react-paypal-js';
-import ProtectedRoute from './hooks/protectedRoutes';
+import ProtectedRoute from './hooks/ProtectedRoutes.js';
 
 const App = () => {
   const initialOptions = {

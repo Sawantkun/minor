@@ -8,7 +8,7 @@ const useAuth = () => {
   const [isNewUser, setIsNewUser] = useState("");
   const [isAdmin, setIsAdmin] = useState(false);
 
-  const adminEmail = 'kseth0808@gmail.com';
+  const adminEmail = '';
 
   useEffect(() => {
     const checkIfUserExists = async (uid) => {
@@ -27,6 +27,7 @@ const useAuth = () => {
 
     const unsubscribe = onAuthStateChanged(auth, (currentUser) => {
       if (currentUser) {
+        console.log(currentUser)
         setUserData(currentUser);
         if (currentUser.email === adminEmail) {
           setIsAdmin(true);
