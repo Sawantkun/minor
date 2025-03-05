@@ -10,7 +10,8 @@ import Admin from './pages/Admin/Admin';
 import Profile from './components/Profile';
 import Error from './pages/Error';
 import { PayPalScriptProvider } from '@paypal/react-paypal-js';
-import ProtectedRoute from './hooks/ProtectedRoutes.js';
+import ProtectedRoute from './hooks/ProtectedRoutes';
+import { AuthProvider } from './hooks/AuthContext';
 
 const App = () => {
   const initialOptions = {
@@ -23,42 +24,44 @@ const App = () => {
 
   return (
     <PayPalScriptProvider options={initialOptions}>
-      <Router>
-        <ToastContainer />
-        <Routes>
-          <Route path='/signup' element={<SignUp />} />
-          <Route path='/login' element={<Login />} />
-          <Route path='/' element={<Home />} />
-          <Route path='/NotFound' element={<Error />} />
+      <ToastContainer />
+      <AuthProvider>
+        <Router>
+          <Routes>
+            <Route path='/signup' element={<SignUp />} />
+            <Route path='/login' element={<Login />} />
+            <Route path='/' element={<Home />} />
+            <Route path='/NotFound' element={<Error />} />
 
-          <Route
-            path='/dashboard'
-            element={
-              <ProtectedRoute>
-                <Dashboard />
-              </ProtectedRoute>
-            }
-          />
-          <Route
-            path='/profile'
-            element={
-              <ProtectedRoute>
-                <Profile />
-              </ProtectedRoute>
-            }
-          />
-          <Route
-            path="/admin"
-            element={
-              <ProtectedRoute>
-                <Admin />
-              </ProtectedRoute>
-            }
-          />
+            <Route
+              path='/dashboard'
+              element={
+                <ProtectedRoute>
+                  <Dashboard />
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path='/profile'
+              element={
+                <ProtectedRoute>
+                  <Profile />
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="/admin"
+              element={
+                <ProtectedRoute>
+                  <Admin />
+                </ProtectedRoute>
+              }
+            />
 
-          <Route path='*' element={<Error />} />
-        </Routes>
-      </Router>
+            <Route path='*' element={<Error />} />
+          </Routes>
+        </Router>
+      </AuthProvider>
     </PayPalScriptProvider>
   );
 };

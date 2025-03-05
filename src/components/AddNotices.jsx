@@ -1,40 +1,14 @@
-import React, { useState } from "react";
-import { getFirestore, collection, addDoc } from "firebase/firestore";
+import React, { useEffect, useState } from "react";
+import { getFirestore, collection, addDoc, getDocs } from "firebase/firestore";
 import { getStorage, ref, uploadBytes, getDownloadURL } from "firebase/storage";
 import Attach from "../assets/images/upload.png";
 import DateFilterImg from "../assets/svgs/calendar.svg"; // Calendar icon for date filtering
 import { Delete } from "@mui/icons-material";
 import CloseIcon from '@mui/icons-material/Close';
-import { storage } from "../firebase";
+import { db, storage } from "../firebase";
 
 const AddNotices = () => {
-  const [notices, setNotices] = useState([
-    {
-      title: "Announcements of new programs, initiatives, or projects. (March 1, 2024)",
-      description: "Details about new programs.",
-      createdAt: "2024-03-01",
-    },
-    {
-      title: "Updates to existing policies or procedures. (March 2, 2024)",
-      description: "Policy updates description.",
-      createdAt: "2024-03-02",
-    },
-    {
-      title: "Important reminders about upcoming deadlines. (March 3, 2024)",
-      description: "Reminder details.",
-      createdAt: "2024-03-03",
-    },
-    {
-      title: "Introduction of new team members. (March 4, 2024)",
-      description: "Meet our new team members.",
-      createdAt: "2024-03-04",
-    },
-    {
-      title: "Launch of new initiatives. (March 5, 2024)",
-      description: "Details about new initiatives.",
-      createdAt: "2024-03-05",
-    },
-  ]);
+  const [notices, setNotices] = useState([]);
 
   const [searchTerm, setSearchTerm] = useState("");
   const [formField, setFormField] = useState({
@@ -42,6 +16,7 @@ const AddNotices = () => {
     description: "",
     pdf: null,
   });
+  const [loading, setloading] = useState(false)
 
   const handleDelete = (index) => {
     const updatedNotices = notices.filter((_, i) => i !== index);
@@ -104,6 +79,47 @@ const AddNotices = () => {
     e.stopPropagation();
     setFiles((prevFiles) => prevFiles.filter((_, i) => i !== index));
   };
+
+  const fetchNotices = async () => {
+    setloading(true)
+    try {
+      const querySnapshot = await getDocs(collection(db, 'notices'));
+      let noticesData = [];
+
+      for (const doc of querySnapshot.docs) {
+        const notice = doc.data();
+        const pdfUrl = notice.pdfUrl ? await getDownloadURL(ref(storage, notice.pdfUrl)) : null;
+        noticesData.push({
+          id: doc.id,
+          title: notice.title,
+          description: notice.description,
+          issuedDate: notice.createdAt?.toDate(),
+          pdfUrl: pdfUrl,
+          icon: DateFilterImg,
+        });
+      }
+      noticesData.sort((a, b) => b.issuedDate - a.issuedDate);
+      noticesData = noticesData.map(notice => ({
+        ...notice,
+        issuedDate: notice.issuedDate?.toLocaleDateString(),
+      }));
+      setloading(false)
+      console.log('Fetched Notices:', noticesData);
+      setNotices(noticesData);
+    } catch (error) {
+      console.error('Error fetching notices:', error);
+    }
+  };
+
+
+  useEffect(() => {
+    fetchNotices();
+  }, []);
+
+
+  //not getting issued at 
+  //verfication
+  //payment //
 
   return (
     <div className="ml-[300px] p-8 bg-gray-50 w-full h-full">
@@ -176,7 +192,15 @@ const AddNotices = () => {
             {files.map((file, index) => (
               <div key={index} className="text-start mt-2">
                 {file.type === "pdf" && (
-                  <h3 className="text-truncate">PDF: {file.name}</h3>
+                  <div className="relative">
+                    <h3 className="text-truncate">PDF: {file.name}</h3>
+                    <span
+                      onClick={(e) => handleRemoveFile(e, index)}
+                      className="absolute top-0 bottom-0 right-0 text-red-600 font-bold"
+                    >
+                      <CloseIcon fontSize="2px" />
+                    </span>
+                  </div>
                 )}
               </div>
             ))}
@@ -207,28 +231,34 @@ const AddNotices = () => {
           onChange={handleSearch}
         />
         <ul className="space-y-2">
-          {filteredNotices.length > 0 ? (
-            filteredNotices.map((notice, index) => (
-              <li
-                key={index}
-                className="flex justify-between items-center p-2 bg-gray-100 rounded"
-              >
-                <div className="flex flex-col gap-1">
-                  <div className="flex items-center gap-2">
-                    <img className="w-[20px]" src={DateFilterImg} alt="Calendar Icon" />
-                    <span className="font-semibold">{notice.title}</span>
-                  </div>
-                </div>
-                <button
-                  onClick={() => handleDelete(index)}
-                  className="text-red-600 hover:text-red-800"
-                >
-                  <Delete />
-                </button>
-              </li>
-            ))
+          {loading ? (
+            <p className=" text-lg font-medium text-center">Loading notices...</p>
           ) : (
-            <li className="text-gray-500">No notices found</li>
+            <>
+              {filteredNotices.length > 0 ? (
+                filteredNotices.map((notice, index) => (
+                  <li
+                    key={index}
+                    className="flex justify-between items-center p-2 bg-gray-100 rounded"
+                  >
+                    <div className="flex flex-col gap-1">
+                      <div className="flex items-center gap-2">
+                        <img className="w-[20px]" src={DateFilterImg} alt="Calendar Icon" />
+                        <span className="font-semibold">{notice.title}</span>
+                      </div>
+                    </div>
+                    <button
+                      onClick={() => handleDelete(index)}
+                      className="text-red-600 hover:text-red-800"
+                    >
+                      <Delete />
+                    </button>
+                  </li>
+                ))
+              ) : (
+                <li className="text-gray-500">No notices found</li>
+              )}
+            </>
           )}
         </ul>
       </div>

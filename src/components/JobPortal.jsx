@@ -1,62 +1,15 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { Add, Search, LocationOn, Delete } from '@mui/icons-material';
 import MessagesImg from "../assets/svgs/messages.svg";
 import { BusinessCenter, Work, CorporateFare, AccountBalance } from '@mui/icons-material';
 import { PlaceOutlined, WorkOutline, AttachMoney, AccessTime } from '@mui/icons-material';
+import { db } from '../firebase';
+import { addDoc, collection, deleteDoc, doc, getDocs } from 'firebase/firestore';
+import useAuth from '../hooks/AuthContext';
 
-const JobPortal = () => {
-  const loggedInUser = "John Doe";
+const JobPortal = ({ setshowMessage, setjobData }) => {
 
-  const [jobs, setJobs] = useState([
-    {
-      id: 1,
-      company: "TechCorp",
-      role: "Frontend Developer",
-      location: "San Francisco, CA",
-      type: "Full-Time",
-      salary: "$120k/year",
-      postedTime: "1 hour ago",
-      link: "https://techcorp.com/careers/frontend-developer",
-      isNew: true,
-      postedBy: "Jane Smith",
-    },
-    {
-      id: 2,
-      company: "Healthify",
-      role: "Data Scientist",
-      location: "New York, NY",
-      type: "Part-Time",
-      salary: "$80k/year",
-      postedTime: "3 hours ago",
-      link: "https://healthify.com/jobs/data-scientist",
-      isNew: false,
-      postedBy: "John Doe",
-    },
-    {
-      id: 3,
-      company: "EduSpark",
-      role: "Backend Developer",
-      location: "Remote",
-      type: "Contract",
-      salary: "$100k/year",
-      postedTime: "1 day ago",
-      link: "https://eduspark.com/hiring/backend-developer",
-      isNew: true,
-      postedBy: "Alice Johnson",
-    },
-    {
-      id: 4,
-      company: "MarketGenius",
-      role: "Product Manager",
-      location: "Chicago, IL",
-      type: "Full-Time",
-      salary: "$130k/year",
-      postedTime: "2 days ago",
-      link: "https://marketgenius.com/careers/product-manager",
-      isNew: false,
-      postedBy: "Mark Spencer",
-    },
-  ]);
+  const [jobs, setJobs] = useState([]);
 
   const [searchTerm, setSearchTerm] = useState('');
   const [locationTerm, setLocationTerm] = useState('');
@@ -64,18 +17,55 @@ const JobPortal = () => {
   const [currentPage, setCurrentPage] = useState(1); // Current page
   const jobsPerPage = 4; // Jobs per page
 
-  const handleDelete = (id) => {
-    setJobs(jobs.filter(job => job.id !== id));
+  useEffect(() => {
+    const fetchData = async () => {
+      try {
+        const querySnapshot = await getDocs(collection(db, 'jobData'));
+        const userList = querySnapshot.docs.map((doc) => {
+          const data = doc.data();
+          return {
+            id: doc.id,
+            ...data,
+            ...(data.formData || {}),
+            createdAt: data.createdAt ? new Date(data.createdAt.seconds * 1000).toLocaleString() : "N/A",
+          };
+        });
+        console.log(userList);
+        setJobs(userList);
+      } catch (error) {
+        console.error('Error fetching documents: ', error);
+      }
+    };
+    fetchData();
+  }, []);
+
+  const handleDelete = async (jobId) => {
+    if (!jobId) {
+      alert('Please enter a document ID');
+      return;
+    }
+    try {
+      setJobs(jobs.filter(job => job.id !== jobId));
+      await deleteDoc(doc(db, 'jobData', jobId));
+      console.log('Document deleted successfully');
+      alert('Document deleted successfully!');
+      setDocId('');
+    } catch (error) {
+      console.error('Error deleting document: ', error);
+      alert('Error deleting document!');
+    }
   };
 
+
   const handleAddJob = (newJob) => {
+    console.log(newJob)
     setJobs([{ ...newJob, id: jobs.length + 1 }, ...jobs]); // Prepend the new job
     setModalOpen(false); // Close the modal
   };
 
   const filteredJobs = jobs.filter(job =>
-    job.role.toLowerCase().includes(searchTerm.toLowerCase()) &&
-    job.location.toLowerCase().includes(locationTerm.toLowerCase())
+    job.role?.toLowerCase().includes(searchTerm.toLowerCase()) &&
+    job.location?.toLowerCase().includes(locationTerm.toLowerCase())
   );
 
   const totalPages = Math.ceil(filteredJobs.length / jobsPerPage);
@@ -129,7 +119,7 @@ const JobPortal = () => {
         </div>
 
         {displayedJobs.map((job) => (
-          <JobCard key={job.id} job={job} loggedInUser={loggedInUser} onDelete={handleDelete} />
+          <JobCard key={job.id} job={job} onDelete={handleDelete} setshowMessage={setshowMessage} setjobData={setjobData} />
         ))}
 
         <div className="flex justify-between items-center mt-6">
@@ -159,6 +149,8 @@ const JobPortal = () => {
 };
 
 const JobFormModal = ({ onClose, onSubmit }) => {
+
+  const { userData } = useAuth();
   const [formData, setFormData] = useState({
     company: '',
     role: '',
@@ -169,6 +161,7 @@ const JobFormModal = ({ onClose, onSubmit }) => {
     link: '',
     isNew: true,
     postedBy: 'John Doe',
+    userId: userData.uid,
   });
 
   const handleChange = (e) => {
@@ -176,10 +169,22 @@ const JobFormModal = ({ onClose, onSubmit }) => {
     setFormData({ ...formData, [name]: value });
   };
 
-  const handleSubmit = (e) => {
-    e.preventDefault();
+  const handleSubmit = async (e) => {
     onSubmit(formData);
+    e.preventDefault();
+    try {
+      const docRef = await addDoc(collection(db, 'jobData'), {
+        formData,
+        createdAt: new Date(),
+      });
+      console.log('Document written with ID: ', docRef.id);
+      alert('Data added successfully!');
+    } catch (error) {
+      console.error('Error adding document: ', error);
+      alert('Error adding data!');
+    }
   };
+
 
   return (
     <div className="fixed inset-0 bg-gray-900 bg-opacity-50 flex justify-center items-center z-50">
@@ -273,25 +278,26 @@ const JobFormModal = ({ onClose, onSubmit }) => {
   );
 };
 
-const JobCard = ({ job, loggedInUser, onDelete }) => {
+const JobCard = ({ job, loggedInUser, onDelete, setshowMessage, setjobData }) => {
   const icons = [<BusinessCenter />, <Work />, <CorporateFare />, <AccountBalance />];
   const randomIcon = icons[Math.floor(Math.random() * icons.length)];
 
+  const { userData } = useAuth();
+
+
   return (
-    <div className="bg-white shadow rounded-lg p-4 mb-4 flex items-start justify-between relative">
+    <div className="bg-white shadow-md rounded-lg p-4 mb-4 flex items-start justify-between relative">
       {/* Company Icon on the left with increased size */}
-      <div className="text-gray-500 mr-4 mt-1 flex-shrink-0">
+      <div className="text-gray-500 mr-4 flex-shrink-0">
         {React.cloneElement(randomIcon, { style: { fontSize: 40 } })}
       </div>
-
-      <div className="flex-1">
+      <div className=" w-full">
         <h2 className="text-xl font-semibold">
           {job.company}
-          {job.isNew && <span className="text-sm bg-red-500 text-white px-2 py-1 ml-2 rounded">New post</span>}
+          {job.isNew && <span className="text-sm bg-red-500 text-white px-3 py-1 ml-2 rounded">New post</span>}
         </h2>
         <p className="text-gray-700">{job.role}</p>
-
-        <div className="flex space-x-8 text-sm text-gray-500 mt-2">
+        <div className="flex space-x-8 text-sm text-gray-500 mt-4">
           <div className="flex items-center">
             <PlaceOutlined className="text-gray-500 mr-2" style={{ fontSize: 18 }} />
             <span>{job.location}</span>
@@ -306,21 +312,21 @@ const JobCard = ({ job, loggedInUser, onDelete }) => {
           </div>
           <div className="flex items-center">
             <AccessTime className="text-gray-500 mr-2" style={{ fontSize: 18 }} />
-            <span>{job.postedTime}</span>
+            <span>{job.createdAt}</span>
           </div>
         </div>
 
         <p className="text-gray-500 text-sm mt-2">Posted by: {job.postedBy}</p>
-        <a href={job.link} className="text-blue-500 text-sm mt-2 block">Apply: {job.link}</a>
+        <a href={job.link} className="text-blue-500 text-sm mt-2 block" target="_blank">Apply: {job.link}</a>
       </div>
 
       <div className="flex flex-col items-center space-y-2">
-        {job.postedBy === loggedInUser && (
+        {job.userId === userData.uid && (
           <button className="text-red-500" onClick={() => onDelete(job.id)}>
             <Delete />
           </button>
         )}
-        <button className="opacity-[0.5] right-[15px] hover:opacity-[1] flex items-center w-6 h-6 absolute bottom-[10px]">
+        <button className="opacity-[0.5] right-[15px] hover:opacity-[1] flex items-center w-6 h-6 absolute bottom-[10px]" onClick={() => { setshowMessage(job.userId), setjobData(job) }}>
           <img src={MessagesImg} alt="Messages" />
         </button>
       </div>

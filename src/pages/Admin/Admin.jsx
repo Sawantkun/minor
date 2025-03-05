@@ -4,12 +4,13 @@ import DirectoryImg from "../../assets/svgs/bxs_dashboard.svg";
 import MessagesImg from "../../assets/svgs/messages.svg";
 import NoticeImg from "../../assets/svgs/news.svg";
 import JobsImg from "../../assets/svgs/jobs.svg";
-import useAuth from "../../hooks/AuthContext";
 import Requests from "../../components/Requests"
 import Messages from "../../components/Messages"
 import JobPortal from "../../components/JobPortal"
 import AddNotices from "../../components/AddNotices"
 import Profile from "../../components/Profile";
+import useAuth from "../../hooks/AuthContext";
+import userImg from "../../assets/svgs/avatar.png"
 
 const Dashboard = () => {
   const [view, setView] = useState("requests");
@@ -40,12 +41,12 @@ const Dashboard = () => {
   };
 
   return (
-    <div className="flex min-h-screen">
+    <div className=" min-h-screen flex">
       {/* Sidebar */}
-      <div className="w-[310px] text-white flex flex-col px-6 py-4 border-r-[1px] justify-between fixed bg-[#F8F9FA] h-full">
+      <div className="  text-white flex flex-col px-6 py-4 border-r-[1px] justify-between  fixed bg-[#F8F9FA] h-full">
         <div>
           {/* Logo */}
-          <div className="w-[270px] object-cover flex-shrink-0 mb-10">
+          <div className="w-[250px] object-cover flex-shrink-0 mb-10">
             <a href="/">
               <img
                 src={logo}
@@ -80,7 +81,7 @@ const Dashboard = () => {
           onClick={() => setView("profile")}
         >
           <img
-            src={userData?.photoURL || "../assets/images/user.png"}
+            src={userData?.photoURL || userImg}
             alt="User"
             className="w-10 h-10 rounded-full object-cover"
           />
@@ -97,9 +98,7 @@ const Dashboard = () => {
         </div>
 
       </div>
-
-      {/* Main Content */}
-      <div className=" w-4/5  bg-gray-50">{renderView()}</div>
+      <div className=" w-4/5 bg-gray-50">{renderView()}</div>
     </div>
   );
 };

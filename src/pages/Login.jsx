@@ -13,6 +13,7 @@ import Button from '../components/ui/button';
 import useAuth from '../hooks/AuthContext';
 
 const SignIn = () => {
+
     const [visibility, setVisibility] = useState(false);
     const [formField, setFormField] = useState({
         email: "",
@@ -21,14 +22,13 @@ const SignIn = () => {
     const [emailForReset, setEmailForReset] = useState("");
 
     const navigate = useNavigate();
-    const { isAdmin } = useAuth()
-
-    const adminEmail = "kseth0808@gmail.com";
+    const { isAdmin, fetchAuthUser, loading } = useAuth()
 
     const handleGoogleSignIn = async () => {
         try {
-            const user = await signInWithGoogle();
-            adminEmail === user?.email ? navigate("/admin") : navigate("/dashboard")
+            await signInWithGoogle();
+            fetchAuthUser()
+            navigate(isAdmin ? "/admin" : "/dashboard");
             toast.success("Login successful.");
         } catch (error) {
             console.error("Google sign-in error:", error);
@@ -43,8 +43,10 @@ const SignIn = () => {
             return;
         }
         try {
-            const user = await signInWithEmailAndPassword(auth, formField.email, formField.password);
-            adminEmail === user?.email ? navigate("/admin") : navigate("/dashboard")
+            await signInWithEmailAndPassword(auth, formField.email, formField.password);
+            await fetchAuthUser()
+            console.log(isAdmin)
+            navigate(isAdmin ? "/admin" : "/dashboard");
             toast.success("Signed in successfully!");
         } catch (error) {
             toast.error(error.message);
@@ -59,6 +61,7 @@ const SignIn = () => {
         }
         try {
             await sendPasswordResetEmail(auth, emailForReset);
+            navigate("/Login")
             toast.success("Password reset email sent. Please check your inbox.");
         } catch (error) {
             toast.error("Error sending password reset email: " + error.message);
