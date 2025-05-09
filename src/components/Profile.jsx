@@ -1,14 +1,14 @@
 import React, { useState, useEffect } from "react";
 import { db } from "../firebase";
 import { doc, getDoc, updateDoc } from "firebase/firestore";
-import useAuth from "../hooks/AuthContext";
+import useAuth from '../hooks/AuthContext';
 import Avatar from "../assets/svgs/avatar.png";
 import Edit from "../assets/svgs/edit.svg";
 import { useNavigate } from "react-router-dom";
 
 
 const Profile = () => {
-  const { user } = useAuth();
+  const { userData } = useAuth();
   const navigate = useNavigate();
   const [activeTab, setActiveTab] = useState("profile");
   const [isEditing, setIsEditing] = useState(false);
@@ -27,7 +27,7 @@ const Profile = () => {
     location: "",
     linkedinId: "",
     designation: "",
-    profilePic: user?.photoURL || Avatar,
+    profilePic: userData?.photoURL || Avatar,
   });
   const [password, setPassword] = useState({
     currentPassword: "",
@@ -49,9 +49,9 @@ const Profile = () => {
   };
 
   const fetchUserData = async () => {
-    if (!user) return;
+    if (!userData) return;
     try {
-      const userDocRef = doc(db, "users", user.uid);
+      const userDocRef = doc(db, "users", userData.uid);
       const docSnap = await getDoc(userDocRef);
       if (docSnap.exists()) {
         setUserInfo(docSnap.data());
@@ -64,10 +64,10 @@ const Profile = () => {
   };
 
   useEffect(() => {
-    if (user) {
+    if (userData) {
       fetchUserData();
     }
-  }, [user]);
+  }, [userData]);
 
 
   const handleChange = (field, value) => {
@@ -78,7 +78,7 @@ const Profile = () => {
   };
 
   const handleLogout = () => {
-    user && user.auth.signOut();
+    userData && userData.auth.signOut();
     navigate("/login");
   };
 
@@ -96,9 +96,9 @@ const Profile = () => {
   };
 
   const handlePasswordChange = async () => {
-    if (!user) return;
+    if (!userData) return;
     try {
-      const userDocRef = doc(db, "users", user.uid);
+      const userDocRef = doc(db, "users", userData.uid);
       const userDoc = await getDoc(userDocRef);
       if (userDoc.exists()) {
         const userData = userDoc.data();
@@ -152,16 +152,16 @@ const Profile = () => {
             <div className="p-6 shadow-md rounded-lg bg-white">
               <div className="flex items-center mb-4">
                 <img
-                  src={user?.photoURL || Avatar}
+                  src={userData?.photoURL || Avatar}
                   alt="User"
                   className="w-14 h-14 rounded-full object-cover"
                 />
                 <div className="ml-4">
                   <p className="text-black text-lg font-semibold">
-                    {user?.displayName || "John Doe"}
+                    {userData?.displayName || "John Doe"}
                   </p>
                   <p className="text-gray-500">
-                    {userInfo?.designation || "No designation"}
+                    {userData?.designation || "No designation"}
                   </p>
                 </div>
                 <button
@@ -174,10 +174,10 @@ const Profile = () => {
               </div>
               <div className="grid grid-cols-2 gap-4 mt-4">
                 <p>
-                  <strong>Email:</strong> {user?.email}
+                  <strong>Email:</strong> {userData?.email}
                 </p>
                 <p>
-                  <strong>City:</strong> {userInfo?.city}
+                  <strong>City:</strong> {userInfo?.city || userData?.city}
                 </p>
                 <p>
                   <strong>Education Level:</strong> {userInfo?.educationLevel}
@@ -217,7 +217,7 @@ const Profile = () => {
                 <label className="block font-medium mb-1">
                   Profile Picture
                 </label>
-                {user?.photoURL && (
+                {userInfo?.photoURL && (
                   <img
                     src={user.photoURL}
                     alt="Profile"

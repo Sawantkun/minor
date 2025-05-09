@@ -4,15 +4,17 @@ import DirectoryImg from "../../assets/svgs/bxs_dashboard.svg";
 import MessagesImg from "../../assets/svgs/messages.svg";
 import NoticeImg from "../../assets/svgs/news.svg";
 import JobsImg from "../../assets/svgs/jobs.svg";
-import useAuth from "../../hooks/AuthContext";
 import Requests from "../../components/Requests"
 import Messages from "../../components/Messages"
 import JobPortal from "../../components/JobPortal"
 import AddNotices from "../../components/AddNotices"
+import Profile from "../../components/Profile";
+import useAuth from "../../hooks/AuthContext";
+import userImg from "../../assets/svgs/avatar.png"
 
 const Dashboard = () => {
   const [view, setView] = useState("requests");
-  const { user } = useAuth();
+  const { userData } = useAuth();
 
   const buttons = [
     { label: "Requests", id: "requests", icon: DirectoryImg },
@@ -24,25 +26,27 @@ const Dashboard = () => {
   const renderView = () => {
     switch (view) {
       case "requests":
-        return <Requests/>;
+        return <Requests />;
       case "messages":
-        return <Messages/>;
+        return <Messages />;
       case "notices":
-        return <AddNotices/>;
+        return <AddNotices />;
       case "jobPortal":
-        return <JobPortal/>;
+        return <JobPortal />;
+      case 'profile':
+        return <Profile />;
       default:
         return <div>Requests Component</div>;
     }
   };
 
   return (
-    <div className="flex min-h-screen">
+    <div className=" min-h-screen flex">
       {/* Sidebar */}
-      <div className="w-[310px] text-white flex flex-col px-6 py-4 border-r-[1px] justify-between fixed bg-[#F8F9FA] h-full">
+      <div className="  text-white flex flex-col px-6 py-4 border-r-[1px] justify-between  fixed bg-[#F8F9FA] h-full">
         <div>
           {/* Logo */}
-          <div className="w-[270px] object-cover flex-shrink-0 mb-10">
+          <div className="w-[250px] object-cover flex-shrink-0 mb-10">
             <a href="/">
               <img
                 src={logo}
@@ -57,14 +61,12 @@ const Dashboard = () => {
             <button
               key={id}
               onClick={() => setView(id)}
-              className={`mb-5 py-3 w-full px-8 rounded-xl text-2xl hover:bg-purple hover:text-white flex gap-3 transition-all duration-300 items-center group ${
-                view === id ? "bg-purple text-white" : "text-black"
-              }`}
+              className={`mb-5 py-3 w-full px-8 rounded-xl text-2xl hover:bg-purple hover:text-white flex gap-3 transition-all duration-300 items-center group ${view === id ? "bg-purple text-white" : "text-black"
+                }`}
             >
               <img
-                className={`w-10 h-7 filter group-hover:invert ${
-                  view === id ? "invert" : ""
-                }`}
+                className={`w-10 h-7 filter group-hover:invert ${view === id ? "invert" : ""
+                  }`}
                 src={icon}
                 alt={label}
               />
@@ -75,34 +77,28 @@ const Dashboard = () => {
 
         {/* User Profile Section */}
         <div
-  className="flex items-center gap-4 border-t-[1px] p-4 mt-8 cursor-pointer hover:bg-gray-200 rounded-lg transition-all duration-300"
-  onClick={() => setView("profile")}
->
-  <img
-    src={user?.photoURL || "../assets/images/user.png"}
-    alt="User"
-    className="w-10 h-10 rounded-full object-cover"
-  />
-  <div>
-    <p className="text-black text-lg font-semibold flex items-center gap-2 relative">
-      {user?.displayName || "John Doe"}
-      <span className="text-xs text-purple border border-purple px-2 py-1 rounded-md font-medium absolute right-[0px] top-0">
-        Admin
-      </span>
-    </p>
-    <p className="text-gray-500 text-sm">
-      {user?.email
-        ? `${user.email.length > 20 ? user.email.substring(0, 23) + "..." : user.email}`
-        : "johndoe@example.com"}
-    </p>
-  </div>
-</div>
-
+          className="flex items-center gap-4 border-t-[1px] p-4 mt-8 cursor-pointer hover:bg-gray-200 rounded-lg transition-all duration-300"
+          onClick={() => setView("profile")}
+        >
+          <img
+            src={userData?.photoURL || userImg}
+            alt="User"
+            className="w-10 h-10 rounded-full object-cover"
+          />
+          <div>
+            <p className="text-black text-lg font-semibold">
+              {userData?.displayName || "John Doe"}
+            </p>
+            <p className="text-gray-500 text-sm">
+              {userData?.email
+                ? `${userData.email.length > 20 ? userData.email.substring(0, 20) + "..." : userData.email}`
+                : "johndoe@example.com"}
+            </p>
+          </div>
+        </div>
 
       </div>
-
-      {/* Main Content */}
-      <div className=" w-4/5  bg-gray-50">{renderView()}</div>
+      <div className=" w-4/5 bg-gray-50">{renderView()}</div>
     </div>
   );
 };

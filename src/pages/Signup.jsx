@@ -5,10 +5,12 @@ import logo from "../assets/googlelogo.png";
 import { useNavigate } from 'react-router-dom';
 import img from "../assets/image-1.png";
 import { toast } from 'react-toastify';
-import { signUpWithGoogle } from '../firebase';
+import { db, signUpWithGoogle } from '../firebase';
 import { createUserWithEmailAndPassword } from 'firebase/auth';
 import { auth } from '../firebase';
 import Button from '../components/ui/button';
+import useAuth from '../hooks/AuthContext';
+import { doc, getDoc, setDoc } from 'firebase/firestore';
 
 const SignUp = () => {
     const [visibility, setVisibility] = useState({
@@ -24,18 +26,31 @@ const SignUp = () => {
     });
 
     const navigate = useNavigate();
+    const { isAdmin, fetchAuthUser } = useAuth()
 
     const handleGoogleSignUp = async () => {
         try {
-            const user = await signUpWithGoogle();
-            console.log(user);
+            const userCredential = await signUpWithGoogle();
+            const user = userCredential;
+            const userRef = doc(db, "users", user.uid);
+            const userDoc = await getDoc(userRef);
+            if (!userDoc.exists()) {
+                await setDoc(userRef, {
+                    name: user.displayName || "",
+                    email: user.email,
+                    isVerificationDone: "",
+                    isPaymentDone: false
+                });
+            }
+            await fetchAuthUser()
+            isAdmin ? navigate("/admin") : navigate("/dashboard");
             toast.success("Signed up with Google successfully!");
-            navigate("/dashboard");
         } catch (error) {
             console.error("Google Sign-Up Error:", error);
             toast.error("Google sign-up failed. Please try again.");
         }
     };
+
 
     const SignIn = () => {
         navigate("/login");
@@ -44,7 +59,6 @@ const SignUp = () => {
     const handleSignUp = async (e) => {
         e.preventDefault();
 
-        // Form validation for required fields and password matching
         if (!formField.name || !formField.email || !formField.password || !formField.confirmPassword) {
             toast.error("Please fill all fields.");
             return;
@@ -56,22 +70,23 @@ const SignUp = () => {
         }
 
         try {
-            // Create a new user with Firebase Authentication
             const userCredential = await createUserWithEmailAndPassword(auth, formField.email, formField.password);
             const user = userCredential.user;
-
-            // Redirect to a different page (e.g., Home page)
-            navigate("/dashboard", {
-                state: { newUser: true },
+            await setDoc(doc(db, "users", user.uid), {
+                userId: user.uid,
+                name: formField.name,
+                email: formField.email,
+                isVerificationDone: "",
+                isPaymentDone: false
             });
-
-            // Optionally show a success message or save user info in the app
+            await fetchAuthUser()
+            isAdmin ? navigate("/admin") : navigate("/dashboard");
             toast.success("Account created successfully!");
         } catch (error) {
-            // Handle Firebase errors (e.g., weak password, invalid email)
             toast.error(error.message);
         }
-    }
+    };
+
 
     return (
         <div className="w-full h-screen flex flex-col">

@@ -1,12 +1,48 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
+import Modal from "./ui/Modal";
+import Button from "./ui/button";
+import { db } from "../firebase";
+import { collection, doc, getDoc, getDocs, updateDoc } from "firebase/firestore";
+import useAuth from "../hooks/AuthContext";
 
 const Requests = () => {
-  const [pendingApprovals, setPendingApprovals] = useState([
-    { fullName: "John Doe", email: "john.doe@gmail.com" },
-    { fullName: "Jane Smith", email: "jane.smith@gmail.com" },
-    { fullName: "Alice Brown", email: "alice.brown@gmail.com" },
-    { fullName: "Bob White", email: "bob.white@gmail.com" },
-  ]);
+
+  const [pendingApprovals, setPendingApprovals] = useState([]);
+  const [loading, setloading] = useState(false)
+
+  const { userData } = useAuth()
+
+  useEffect(() => {
+    const fetchUsersWithDegrees = async () => {
+      setloading(true)
+      try {
+        const usersCollection = collection(db, "users");
+        const usersSnapshot = await getDocs(usersCollection);
+        const usersList = await Promise.all(
+          usersSnapshot.docs
+            .map(async (userDoc) => {
+              const userData = { userId: userDoc.id, ...userDoc.data() };
+              console.log(userData)
+              if (userData.isVerificationDone === "") {
+                const userFileRef = doc(db, "userFiles", userDoc.id);
+                const userFileSnap = await getDoc(userFileRef);
+                userData.degree = userFileSnap.exists() ? userFileSnap.data() : null;
+                return userData;
+              }
+              return null;
+            })
+        );
+        setloading(false)
+        setPendingApprovals(usersList.filter(Boolean));
+      } catch (error) {
+        console.error("Error fetching users with degrees:", error);
+      }
+    };
+
+    fetchUsersWithDegrees();
+  }, []);
+
+
 
   const [alumniList, setAlumniList] = useState([
     {
@@ -30,6 +66,10 @@ const Requests = () => {
 
   const [currentPage, setCurrentPage] = useState(1);
   const [searchQuery, setSearchQuery] = useState("");
+  const [showAlert, setshowAlert] = useState({
+    vissible: false,
+    rejectIndex: null
+  })
 
   const itemsPerPage = 10;
   const filteredAlumni = alumniList.filter(
@@ -43,31 +83,54 @@ const Requests = () => {
     currentPage * itemsPerPage
   );
 
-  const handleApprove = (index) => {
-    const approvedUser = pendingApprovals[index];
-    setAlumniList([
-      ...alumniList,
-      {
-        userId: Date.now().toString(), // Generate a unique ID
-        name: approvedUser.fullName,
-        company: "-", // Default values
-        designation: "-",
-        location: "-",
-        passOutYear: "-",
-      },
-    ]);
-
-    const updatedPending = pendingApprovals.filter((_, i) => i !== index);
-    setPendingApprovals(updatedPending);
+  const handleApprove = async (userId) => {
+    try {
+      const approvedUser = pendingApprovals.find((approval) => approval.userId === userId);
+      if (!approvedUser) {
+        console.error("User not found in pending approvals");
+        return;
+      }
+      const userRef = doc(db, "users", userId);
+      await updateDoc(userRef, { isVerificationDone: true });
+      setAlumniList([
+        ...alumniList,
+        {
+          userId: approvedUser.userId,
+          name: approvedUser.name,
+          company: "-",
+          designation: "-",
+          location: "-",
+          passOutYear: "-",
+        },
+      ]);
+      const updatedPending = pendingApprovals.filter((approval) => approval.userId !== userId);
+      setPendingApprovals(updatedPending);
+      console.log(`User ${userId} approved successfully!`);
+    } catch (error) {
+      console.error("Error updating user verification status:", error);
+    }
   };
 
-  const handleReject = (index) => {
-    const updatedPending = pendingApprovals.filter((_, i) => i !== index);
-    setPendingApprovals(updatedPending);
+  const handleReject = async (userId) => {
+    try {
+      const rejectUser = pendingApprovals.find((approval) => approval.userId === userId);
+      if (!rejectUser) {
+        console.error("User not found in pending approvals");
+        return;
+      }
+      const userRef = doc(db, "users", userId);
+      await updateDoc(userRef, { isVerificationDone: false });
+      setPendingApprovals((prev) => prev.filter((approval) => approval.userId !== userId));
+      setshowAlert({ ...showAlert, vissible: false, rejectIndex: null })
+      console.log(`User ${userId} reject successfully!`);
+    } catch (error) {
+      console.error("Error updating user verification status:", error);
+    }
   };
+
 
   return (
-    <div className=" ml-[310px] p-8 bg-gray-50 w-full">
+    <div className=" ml-[300px] p-6 bg-gray-50 w-full">
       {/* Dashboard Summary */}
       <div className="grid grid-cols-2 gap-4 mb-8">
         <div className="bg-white p-6 rounded-lg shadow-md flex justify-between items-center">
@@ -98,37 +161,47 @@ const Requests = () => {
           Approvals Pending
         </h3>
         <div className="bg-white p-4 rounded-lg shadow-md">
-          {pendingApprovals.map((approval, index) => (
-            <div
-              key={index}
-              className="flex justify-between items-center border-b last:border-b-0 py-3"
-            >
-              <div className="flex gap-10 items-end">
-                <p className="font-medium">{approval.fullName}</p>
-                <p className="text-gray-500 text-sm">{approval.email}</p>
-                <a
-                  href="#"
-                  className="text-purple text-sm underline hover:text-black"
+          {loading ? (
+            <div className=" text-center">Loading...</div>
+          ) : (
+            <>
+              {pendingApprovals.map((approval, index) => (
+                <div
+                  key={index}
+                  className="flex justify-between items-center border-b last:border-b-0 py-3"
                 >
-                  View document
-                </a>
-              </div>
-              <div className="flex gap-2">
-                <button
-                  onClick={() => handleApprove(index)}
-                  className="bg-purple text-white px-4 py-2 rounded-md hover:bg-green-600"
-                >
-                  Approve
-                </button>
-                <button
-                  onClick={() => handleReject(index)}
-                  className="bg-red-500 text-white px-4 py-2 rounded-md hover:bg-red-600"
-                >
-                  Reject
-                </button>
-              </div>
-            </div>
-          ))}
+                  <div className="flex gap-10 items-end">
+                    <p className="font-medium">{approval.name}</p>
+                    <p className="text-gray-500 text-sm">{approval.email}</p>
+                    {approval.degree && (
+                      <a
+                        href={approval.degree?.fileURL}
+                        className="text-purple text-sm cursor-pointer underline hover:text-black"
+                        target="_blank"
+                      >
+                        View document
+                      </a>
+                    )}
+                  </div>
+                  <div className="flex gap-2">
+                    <button
+                      onClick={() => handleApprove(approval.userId)}
+                      className="bg-purple text-white px-4 py-2 rounded-md hover:bg-green-600"
+                    >
+                      Approve
+                    </button>
+                    <button
+                      onClick={() => setshowAlert({ vissible: true, rejectIndex: approval.userId })}
+                      className="bg-red-500 text-white px-4 py-2 rounded-md hover:bg-red-600"
+                    >
+                      Reject
+                    </button>
+                  </div>
+
+                </div>
+              ))}
+            </>
+          )}
         </div>
       </div>
 
@@ -158,7 +231,7 @@ const Requests = () => {
                 <th className="p-4 border-b">Designation</th>
                 <th className="p-4 border-b">Location</th>
                 <th className="p-4 border-b">Pass Out Year</th>
-                <th className="p-4 border-b">Action</th>
+                <th className="p-4 border-b">Document</th>
               </tr>
             </thead>
             <tbody>
@@ -171,12 +244,13 @@ const Requests = () => {
                   <td className="p-4 border-b">{alumni.location}</td>
                   <td className="p-4 border-b">{alumni.passOutYear}</td>
                   <td className="p-4 border-b">
-                    <button
-                      className="text-purple underline hover:text-black"
-                      onClick={() => alert(`Viewing details of ${alumni.name}`)}
+                    <a
+                      href={alumni.data}
+                      className="text-purple underline cursor-pointer hover:text-black"
+                      target="_blank"
                     >
                       View
-                    </button>
+                    </a>
                   </td>
                 </tr>
               ))}
@@ -204,6 +278,21 @@ const Requests = () => {
           </div>
         </div>
       </div>
+      {showAlert.vissible && (
+        <Modal isOpen={showAlert.vissible} onClose={() => setshowAlert({ ...showAlert, vissible: false })}>
+          <Modal.Header>
+          </Modal.Header>
+          <Modal.Body>
+            <div className="text-2xl text-center font-semibold">Are you sure you want to reject this user</div>
+          </Modal.Body>
+          <Modal.Footer>
+            <div className=" flex items-center justify-end gap-4">
+              <button onClick={() => setshowAlert({ ...showAlert, vissible: false })}>Cancel</button>
+              <button className=" bg-purple text-white px-4 py-2 rounded-lg" onClick={() => handleReject(showAlert.rejectIndex)}>Confirm</button>
+            </div>
+          </Modal.Footer>
+        </Modal>
+      )}
     </div>
   );
 };

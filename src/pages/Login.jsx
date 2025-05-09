@@ -2,16 +2,18 @@ import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import logo from "../assets/googlelogo.png";
 import { toast } from 'react-toastify';
-import { signInWithGoogle } from '../firebase';
+import { signInWithGoogle, signUpWithGoogle } from '../firebase';
 import { signInWithEmailAndPassword, sendPasswordResetEmail } from 'firebase/auth';
-import { doc, getDoc } from "firebase/firestore";
+import { doc, getDoc, setDoc } from "firebase/firestore";
 import { auth, db } from '../firebase';
 import Visibility from '@mui/icons-material/Visibility';
 import VisibilityOff from '@mui/icons-material/VisibilityOff';
 import img from "../assets/image.png";
 import Button from '../components/ui/button';
+import useAuth from '../hooks/AuthContext';
 
 const SignIn = () => {
+
     const [visibility, setVisibility] = useState(false);
     const [formField, setFormField] = useState({
         email: "",
@@ -20,20 +22,35 @@ const SignIn = () => {
     const [emailForReset, setEmailForReset] = useState("");
 
     const navigate = useNavigate();
+    const { isAdmin, fetchAuthUser } = useAuth()
 
     const handleGoogleSignIn = async () => {
         try {
-            const user = await signInWithGoogle();
-            console.log("User logged in:", user);
-            // Proceed to dashboard without updating Firestore
-            toast.success("Signed in with Google successfully!");
-            navigate("/admin");
-
+            const userCredential = await signUpWithGoogle();
+            const user = userCredential;
+            const userRef = doc(db, "users", user.uid);
+            const userDoc = await getDoc(userRef);
+            if (!userDoc.exists()) {
+                await setDoc(userRef, {
+                    name: user.displayName || "",
+                    email: user.email,
+                    isVerificationDone: false,
+                    isPaymentDone: false
+                });
+            }
+            await fetchAuthUser()
+            if (isAdmin) {
+                navigate("/admin")
+            } else {
+                navigate("/dashboard")
+            }
+            toast.success("Login successful.");
         } catch (error) {
             console.error("Google sign-in error:", error);
             toast.error("Google sign-in failed. Please try again.");
         }
     };
+
     const handleSignIn = async (e) => {
         e.preventDefault();
         if (!formField.email || !formField.password) {
@@ -41,10 +58,11 @@ const SignIn = () => {
             return;
         }
         try {
-            const user = await signInWithEmailAndPassword(auth, formField.email, formField.password);
-            console.log(user)
+            await signInWithEmailAndPassword(auth, formField.email, formField.password);
+            await fetchAuthUser()
+            console.log("isAdmin", isAdmin)
+            isAdmin ? navigate("/admin") : navigate("/dashboard");
             toast.success("Signed in successfully!");
-            navigate("/dashboard", { state: { newUser: false } });
         } catch (error) {
             toast.error(error.message);
         }
@@ -58,6 +76,7 @@ const SignIn = () => {
         }
         try {
             await sendPasswordResetEmail(auth, emailForReset);
+            navigate("/Login")
             toast.success("Password reset email sent. Please check your inbox.");
         } catch (error) {
             toast.error("Error sending password reset email: " + error.message);
