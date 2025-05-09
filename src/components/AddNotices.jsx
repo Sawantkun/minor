@@ -1,26 +1,105 @@
 import React, { useEffect, useState } from "react";
-import { getFirestore, collection, addDoc, getDocs } from "firebase/firestore";
-import { getStorage, ref, uploadBytes, getDownloadURL } from "firebase/storage";
+import { collection, addDoc, getDocs, doc, deleteDoc } from "firebase/firestore";
+import { ref, uploadBytes, getDownloadURL } from "firebase/storage";
 import Attach from "../assets/images/upload.png";
-import DateFilterImg from "../assets/svgs/calendar.svg"; // Calendar icon for date filtering
-import { Delete } from "@mui/icons-material";
+import DateFilterImg from "../assets/svgs/calendar.svg";
+import { Delete, Visibility } from "@mui/icons-material";
 import CloseIcon from '@mui/icons-material/Close';
 import { db, storage } from "../firebase";
 
 const AddNotices = () => {
   const [notices, setNotices] = useState([]);
-
   const [searchTerm, setSearchTerm] = useState("");
   const [formField, setFormField] = useState({
     title: "",
     description: "",
     pdf: null,
   });
-  const [loading, setloading] = useState(false)
+  const [loading, setLoading] = useState(false);
+  const [deleteLoading, setDeleteLoading] = useState(false);
+  const [selectedNoticeId, setSelectedNoticeId] = useState(null);
+  const [files, setFiles] = useState([]);
 
-  const handleDelete = (index) => {
-    const updatedNotices = notices.filter((_, i) => i !== index);
-    setNotices(updatedNotices);
+  const fetchNotices = async () => {
+    setLoading(true);
+    try {
+      const querySnapshot = await getDocs(collection(db, 'notices'));
+      let noticesData = [];
+
+      for (const docSnapshot of querySnapshot.docs) {
+        const notice = docSnapshot.data();
+        let pdfUrl = null;
+
+        // Check if pdfUrl exists before trying to get download URL
+        if (notice.pdfUrl) {
+          try {
+            // If pdfUrl already contains the full URL
+            if (notice.pdfUrl.startsWith('http')) {
+              pdfUrl = notice.pdfUrl;
+            } else {
+              // Otherwise, get the download URL from Firebase storage
+              pdfUrl = await getDownloadURL(ref(storage, notice.pdfUrl));
+            }
+          } catch (error) {
+            console.error('Error getting download URL:', error);
+          }
+        }
+
+        noticesData.push({
+          id: docSnapshot.id,
+          title: notice.title,
+          description: notice.description,
+          issuedDate: notice.createdAt?.toDate(),
+          pdfUrl: pdfUrl,
+          icon: DateFilterImg,
+        });
+      }
+
+      noticesData.sort((a, b) => b.issuedDate - a.issuedDate);
+      noticesData = noticesData.map(notice => ({
+        ...notice,
+        issuedDate: notice.issuedDate?.toLocaleDateString(),
+      }));
+
+      setNotices(noticesData);
+      console.log('Fetched Notices:', noticesData);
+    } catch (error) {
+      console.error('Error fetching notices:', error);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  useEffect(() => {
+    fetchNotices();
+  }, []);
+
+  const handleDelete = async (id) => {
+    if (window.confirm('Are you sure you want to delete this notice?')) {
+      setDeleteLoading(true);
+      setSelectedNoticeId(id);
+      try {
+        // Delete the document from Firestore
+        await deleteDoc(doc(db, 'notices', id));
+        // After successful deletion, refresh the notices list
+        fetchNotices();
+        alert('Notice deleted successfully');
+      } catch (error) {
+        console.error('Error deleting notice:', error);
+        alert('Failed to delete notice');
+      } finally {
+        setDeleteLoading(false);
+        setSelectedNoticeId(null);
+      }
+    }
+  };
+
+  const handleViewPdf = (pdfUrl) => {
+    if (pdfUrl) {
+      window.open(pdfUrl, '_blank');
+    } else {
+      alert('No PDF available for this notice');
+    }
   };
 
   const handleSearch = (e) => {
@@ -33,26 +112,51 @@ const AddNotices = () => {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+    setLoading(true);
+
     try {
-      const fileRef = ref(storage, `notices/${formField.pdf?.name}`);
-      await uploadBytes(fileRef, formField.pdf);
+      if (!files.length || !files.some(file => file.type === "pdf")) {
+        alert("Please upload a PDF file");
+        setLoading(false);
+        return;
+      }
+
+      // Get the PDF file from the files array
+      const pdfFile = files.find(file => file.type === "pdf");
+
+      if (!pdfFile || !pdfFile.file) {
+        alert("Invalid PDF file");
+        setLoading(false);
+        return;
+      }
+
+      // Upload file to Firebase Storage
+      const fileRef = ref(storage, `notices/${Date.now()}_${pdfFile.file.name}`);
+      await uploadBytes(fileRef, pdfFile.file);
       const fileUrl = await getDownloadURL(fileRef);
-      const newNotice = {
+
+      // Add document to Firestore
+      const docRef = await addDoc(collection(db, 'notices'), {
         title: formField.title,
         description: formField.description,
         pdfUrl: fileUrl,
         createdAt: new Date(),
-      };
+      });
+
+      // Reset form fields
       setFormField({ title: "", description: "", pdf: null });
-      setNotices((prevNotices) => [newNotice, ...prevNotices]);
+      setFiles([]);
+
+      // Refresh notices list
+      fetchNotices();
       alert("Notice uploaded successfully!");
     } catch (error) {
       console.error("Error uploading notice:", error);
       alert("Failed to upload notice. Please try again.");
+    } finally {
+      setLoading(false);
     }
   };
-
-  const [files, setFiles] = useState([]);
 
   const handleFileChange = (e) => {
     const uploadedFiles = Array.from(e.target.files);
@@ -62,14 +166,14 @@ const AddNotices = () => {
         reader.onloadend = () => {
           setFiles((prevFiles) => [
             ...prevFiles,
-            { type: "image", name: file.name, src: reader.result },
+            { type: "image", name: file.name, src: reader.result, file }
           ]);
         };
         reader.readAsDataURL(file);
       } else if (file.type === "application/pdf") {
         setFiles((prevFiles) => [
           ...prevFiles,
-          { type: "pdf", name: file.name },
+          { type: "pdf", name: file.name, file }
         ]);
       }
     });
@@ -79,47 +183,6 @@ const AddNotices = () => {
     e.stopPropagation();
     setFiles((prevFiles) => prevFiles.filter((_, i) => i !== index));
   };
-
-  const fetchNotices = async () => {
-    setloading(true)
-    try {
-      const querySnapshot = await getDocs(collection(db, 'notices'));
-      let noticesData = [];
-
-      for (const doc of querySnapshot.docs) {
-        const notice = doc.data();
-        const pdfUrl = notice.pdfUrl ? await getDownloadURL(ref(storage, notice.pdfUrl)) : null;
-        noticesData.push({
-          id: doc.id,
-          title: notice.title,
-          description: notice.description,
-          issuedDate: notice.createdAt?.toDate(),
-          pdfUrl: pdfUrl,
-          icon: DateFilterImg,
-        });
-      }
-      noticesData.sort((a, b) => b.issuedDate - a.issuedDate);
-      noticesData = noticesData.map(notice => ({
-        ...notice,
-        issuedDate: notice.issuedDate?.toLocaleDateString(),
-      }));
-      setloading(false)
-      console.log('Fetched Notices:', noticesData);
-      setNotices(noticesData);
-    } catch (error) {
-      console.error('Error fetching notices:', error);
-    }
-  };
-
-
-  useEffect(() => {
-    fetchNotices();
-  }, []);
-
-
-  //not getting issued at 
-  //verfication
-  //payment //
 
   return (
     <div className="ml-[300px] p-8 bg-gray-50 w-full h-full">
@@ -180,7 +243,7 @@ const AddNotices = () => {
                       />
                       <span
                         onClick={(e) => handleRemoveFile(e, index)}
-                        className="absolute top-1 right-2 text-red-600 font-bold"
+                        className="absolute top-1 right-2 text-red-600 font-bold cursor-pointer"
                       >
                         <CloseIcon fontSize="2px" />
                       </span>
@@ -190,13 +253,13 @@ const AddNotices = () => {
               ))}
             </div>
             {files.map((file, index) => (
-              <div key={index} className="text-start mt-2">
+              <div key={`pdf-${index}`} className="text-start mt-2">
                 {file.type === "pdf" && (
-                  <div className="relative">
-                    <h3 className="text-truncate">PDF: {file.name}</h3>
+                  <div className="relative flex items-center">
+                    <h3 className="text-truncate flex-1">PDF: {file.name}</h3>
                     <span
                       onClick={(e) => handleRemoveFile(e, index)}
-                      className="absolute top-0 bottom-0 right-0 text-red-600 font-bold"
+                      className="text-red-600 font-bold cursor-pointer"
                     >
                       <CloseIcon fontSize="2px" />
                     </span>
@@ -210,15 +273,16 @@ const AddNotices = () => {
             id="fileUpload"
             className="hidden"
             onChange={handleFileChange}
-            required
+            accept="application/pdf,image/*"
             multiple
           />
         </div>
         <button
           type="submit"
           className="mt-4 px-4 py-2 bg-purple text-white rounded hover:opacity-75"
+          disabled={loading}
         >
-          Upload
+          {loading ? "Uploading..." : "Upload"}
         </button>
       </form>
       <div>
@@ -232,31 +296,51 @@ const AddNotices = () => {
         />
         <ul className="space-y-2">
           {loading ? (
-            <p className=" text-lg font-medium text-center">Loading notices...</p>
+            <p className="text-lg font-medium text-center">Loading notices...</p>
           ) : (
             <>
               {filteredNotices.length > 0 ? (
-                filteredNotices.map((notice, index) => (
+                filteredNotices.map((notice) => (
                   <li
-                    key={index}
-                    className="flex justify-between items-center p-2 bg-gray-100 rounded"
+                    key={notice.id}
+                    className="flex justify-between items-center p-3 bg-white shadow-sm rounded"
                   >
                     <div className="flex flex-col gap-1">
                       <div className="flex items-center gap-2">
                         <img className="w-[20px]" src={DateFilterImg} alt="Calendar Icon" />
                         <span className="font-semibold">{notice.title}</span>
                       </div>
+                      <div className="text-sm text-gray-500">
+                        {notice.issuedDate && <span>{notice.issuedDate}</span>}
+                      </div>
                     </div>
-                    <button
-                      onClick={() => handleDelete(index)}
-                      className="text-red-600 hover:text-red-800"
-                    >
-                      <Delete />
-                    </button>
+                    <div className="flex items-center gap-3">
+                      <button
+                        onClick={() => handleViewPdf(notice.pdfUrl)}
+                        className="text-blue-600 hover:text-blue-800 flex items-center"
+                        title="View PDF"
+                      >
+                        <Visibility />
+                      </button>
+                      <button
+                        onClick={() => handleDelete(notice.id)}
+                        className={`text-red-600 hover:text-red-800 flex items-center ${
+                          deleteLoading && selectedNoticeId === notice.id ? 'opacity-50 cursor-not-allowed' : ''
+                        }`}
+                        disabled={deleteLoading && selectedNoticeId === notice.id}
+                        title="Delete Notice"
+                      >
+                        {deleteLoading && selectedNoticeId === notice.id ? (
+                          <span>...</span>
+                        ) : (
+                          <Delete />
+                        )}
+                      </button>
+                    </div>
                   </li>
                 ))
               ) : (
-                <li className="text-gray-500">No notices found</li>
+                <li className="text-gray-500 text-center p-4">No notices found</li>
               )}
             </>
           )}
