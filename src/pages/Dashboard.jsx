@@ -21,6 +21,7 @@ import { db, storage } from "../firebase";
 import userImg from "../assets/svgs/avatar.png"
 import useAuth from '../hooks/AuthContext';
 import { doc, getDoc, setDoc } from 'firebase/firestore';
+import Events from './Events';
 
 const Dashboard = () => {
 
@@ -89,6 +90,8 @@ const Dashboard = () => {
         return <Messages userId={selectedUserId} jobData={jobData} onResetUserId={() => setSelectedUserId()} />;
       case 'profile':
         return <Profile />;
+      case 'events':
+        return <Events />;
       case 'notices':
         return <Notices />;
       default:
@@ -110,6 +113,7 @@ const Dashboard = () => {
     { label: 'Directory', id: 'directory', icon: DirectoryImg },
     { label: 'Messages', id: 'messages', icon: MessagesImg },
     { label: 'Notices', id: 'notices', icon: NoticeImg },
+    { label: 'Events', id: 'events', icon: NoticeImg },
     { label: 'Job Portal', id: 'jobPortal', icon: JobsImg },
   ];
 
@@ -298,7 +302,7 @@ const Dashboard = () => {
               </div>
             ) : (
               <>
-                <div className="text-white flex flex-col px-6 py-4 border-r-[1px] justify-between fixed bg-[#F8F9FA] h-full">
+                <div className="w-[300px] text-white flex flex-col px-6 py-4 border-r-[1px] justify-between fixed bg-[#F8F9FA] h-full">
                   <div>
                     {/* Logo */}
                     <div className="w-[250px] object-cover flex-shrink-0 mb-10">
