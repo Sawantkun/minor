@@ -2,9 +2,9 @@ import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import logo from "../assets/googlelogo.png";
 import { toast } from 'react-toastify';
-import { signInWithGoogle } from '../firebase';
+import { signInWithGoogle, signUpWithGoogle } from '../firebase';
 import { signInWithEmailAndPassword, sendPasswordResetEmail } from 'firebase/auth';
-import { doc, getDoc } from "firebase/firestore";
+import { doc, getDoc, setDoc } from "firebase/firestore";
 import { auth, db } from '../firebase';
 import Visibility from '@mui/icons-material/Visibility';
 import VisibilityOff from '@mui/icons-material/VisibilityOff';
@@ -22,13 +22,28 @@ const SignIn = () => {
     const [emailForReset, setEmailForReset] = useState("");
 
     const navigate = useNavigate();
-    const { isAdmin, fetchAuthUser, loading } = useAuth()
+    const { isAdmin, fetchAuthUser } = useAuth()
 
     const handleGoogleSignIn = async () => {
         try {
-            await signInWithGoogle();
-            fetchAuthUser()
-            navigate(isAdmin ? "/admin" : "/dashboard");
+            const userCredential = await signUpWithGoogle();
+            const user = userCredential;
+            const userRef = doc(db, "users", user.uid);
+            const userDoc = await getDoc(userRef);
+            if (!userDoc.exists()) {
+                await setDoc(userRef, {
+                    name: user.displayName || "",
+                    email: user.email,
+                    isVerificationDone: false,
+                    isPaymentDone: false
+                });
+            }
+            await fetchAuthUser()
+            if (isAdmin) {
+                navigate("/admin")
+            } else {
+                navigate("/dashboard")
+            }
             toast.success("Login successful.");
         } catch (error) {
             console.error("Google sign-in error:", error);
@@ -45,8 +60,8 @@ const SignIn = () => {
         try {
             await signInWithEmailAndPassword(auth, formField.email, formField.password);
             await fetchAuthUser()
-            console.log(isAdmin)
-            navigate(isAdmin ? "/admin" : "/dashboard");
+            console.log("isAdmin", isAdmin)
+            isAdmin ? navigate("/admin") : navigate("/dashboard");
             toast.success("Signed in successfully!");
         } catch (error) {
             toast.error(error.message);

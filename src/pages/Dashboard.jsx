@@ -22,15 +22,14 @@ import userImg from "../assets/svgs/avatar.png"
 import useAuth from '../hooks/AuthContext';
 import { doc, getDoc, setDoc } from 'firebase/firestore';
 
-
 const Dashboard = () => {
 
   const { userData } = useAuth();
   const [showPayPal, setShowPayPal] = useState(true);
   const [view, setView] = useState('directory');
   const [steps, setSteps] = useState(0);
-  const [verification, setVerification] = useState(userData?.isVerificationDone);
-  const [payment, setPayment] = useState(userData?.isPaymentDone);
+  const [verification, setVerification] = useState(true);
+  const [payment, setPayment] = useState(true);
   const [formField, setFormField] = useState({ degree: "" });
   const [selectedUserId, setSelectedUserId] = useState();
   const [jobData, setjobData] = useState()
@@ -135,8 +134,6 @@ const Dashboard = () => {
                       alt="User"
                       className="w-14 h-14 rounded-full object-cover"
                     />
-
-
                     <div>
                       <p className="text-black text-lg font-semibold">{userData?.displayName || "John Doe"}</p> {/* Display name from Firestore */}
                       <p className="text-gray-500 text-sm">{userData?.email || 'johndoe@example.com'}</p> {/* Display email from Firestore */}
