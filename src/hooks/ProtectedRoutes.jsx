@@ -5,7 +5,7 @@ import useAuth from "./AuthContext";
 const ProtectedRoute = ({ children }) => {
 
     const location = useLocation();
-    const { userData, isAdmin, loading } = useAuth();
+    const { userData, isAdminRef, loading } = useAuth();
 
     if (loading === true) {
         return <div>Loading...</div>;
@@ -15,7 +15,7 @@ const ProtectedRoute = ({ children }) => {
         return <Navigate to="/Login" state={{ from: location }} replace />;
     }
 
-    if (location.pathname === "/admin" && isAdmin === false) {
+    if (location.pathname === "/admin" && isAdminRef.current === false && loading === false) {
         return <Navigate to="/NotFound" replace />;
     }
 

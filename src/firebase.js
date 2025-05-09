@@ -65,7 +65,7 @@ const signUpWithGoogle = async () => {
     throw error;
   }
 };
-setPersistence(auth, browserLocalPersistence)
+setPersistence(auth, browserSessionPersistence)
   .then(() => {
     console.log("Auth persistence set to local");
   })

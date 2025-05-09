@@ -1,4 +1,4 @@
-import React, { createContext, useContext, useState, useEffect, useCallback } from "react";
+import React, { createContext, useContext, useState, useEffect, useCallback, useRef } from "react";
 import { auth, db } from "../firebase";
 import { onAuthStateChanged } from "firebase/auth";
 import { doc, getDoc } from "firebase/firestore";
@@ -6,13 +6,13 @@ import { doc, getDoc } from "firebase/firestore";
 const AuthContext = createContext(null);
 
 export const AuthProvider = ({ children }) => {
-  const [userData, setUserData] = useState(undefined); // Initially undefined
-  const [isAdmin, setIsAdmin] = useState(false);
-  const [loading, setLoading] = useState(true);
 
-  const adminEmail = "sawant@nusterai.com"; // Replace with your admin email
+  const [userData, setUserData] = useState(null);
+  const [loading, setLoading] = useState(null);
+  const isAdminRef = useRef(false);
 
-  // Function to fetch authenticated user
+  const adminEmail = "hello11@gmail.com";
+
   const fetchAuthUser = useCallback(async () => {
     setLoading(true);
     try {
@@ -22,30 +22,22 @@ export const AuthProvider = ({ children }) => {
         if (userDoc.exists()) {
           const userDataFromFirestore = userDoc.data();
           setUserData({ ...currentUser, ...userDataFromFirestore });
+          isAdminRef.current = currentUser.email === adminEmail;
         } else {
+          isAdminRef.current = currentUser.email === adminEmail;
           setUserData({ ...currentUser });
         }
-
-        // Set admin status based on email
-        setIsAdmin(currentUser.email === adminEmail);
-        console.log("Admin status set:", currentUser.email === adminEmail);
+        console.log("Admin status set:", isAdminRef.current);
       } else {
         setUserData(null);
-        setIsAdmin(false);
+        isAdminRef.current = false;
       }
     } catch (error) {
       console.error("Error fetching user data:", error);
+    } finally {
+      setLoading(false);
     }
-    setLoading(false);
   }, []);
-
-  // Debug logging
-  useEffect(() => {
-    if (userData) {
-      console.log("User data updated:", userData);
-      console.log("Is admin:", isAdmin);
-    }
-  }, [userData, isAdmin]);
 
   useEffect(() => {
     const unsubscribe = onAuthStateChanged(auth, (user) => {
@@ -62,7 +54,7 @@ export const AuthProvider = ({ children }) => {
 
   const value = {
     userData,
-    isAdmin,
+    isAdminRef,
     loading,
     fetchAuthUser
   };

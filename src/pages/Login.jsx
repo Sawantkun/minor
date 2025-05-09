@@ -13,6 +13,7 @@ import Button from '../components/ui/button';
 import useAuth from '../hooks/AuthContext';
 
 const SignIn = () => {
+
     const [visibility, setVisibility] = useState(false);
     const [formField, setFormField] = useState({
         email: "",
@@ -21,39 +22,25 @@ const SignIn = () => {
     const [emailForReset, setEmailForReset] = useState("");
 
     const navigate = useNavigate();
-    const { userData, isAdmin, fetchAuthUser } = useAuth();
-
-    // Add effect to handle navigation after auth state is confirmed
-    useEffect(() => {
-        if (userData) {
-            if (isAdmin) {
-                navigate("/admin");
-            } else {
-                navigate("/dashboard");
-            }
-        }
-    }, [userData, isAdmin, navigate]);
+    const { isAdminRef, fetchAuthUser } = useAuth();
 
     const handleGoogleSignIn = async () => {
         try {
             const userCredential = await signUpWithGoogle();
             const user = userCredential;
-            const userRef = doc(db, "users", user.uid);
-            const userDoc = await getDoc(userRef);
-            if (!userDoc.exists()) {
-                await setDoc(userRef, {
-                    name: user.displayName || "",
-                    email: user.email,
-                    isVerificationDone: false,
-                    isPaymentDone: false
-                });
-            }
-            // Only call fetchAuthUser, navigation will happen in the useEffect
-            await fetchAuthUser();
-            toast.success("Login successful.");
+            const userRef = doc(db, "users", user?.uid)
+            await setDoc(userRef, {
+                name: user.displayName || "",
+                email: user.email,
+                isVerificationDone: "",
+                isPaymentDone: false
+            });
+            await fetchAuthUser()
+            isAdminRef.current ? navigate("/admin") : navigate("/dashboard");
+            toast.success("Signed up with Google successfully!");
         } catch (error) {
-            console.error("Google sign-in error:", error);
-            toast.error("Google sign-in failed. Please try again.");
+            console.error("Google Sign-Up Error:", error);
+            toast.error("Google sign-up failed. Please try again.");
         }
     };
 
@@ -65,8 +52,9 @@ const SignIn = () => {
         }
         try {
             await signInWithEmailAndPassword(auth, formField.email, formField.password);
-            // Only call fetchAuthUser, navigation will happen in the useEffect
             await fetchAuthUser();
+            isAdminRef.current ? navigate("/admin") : navigate("/dashboard");
+            toast.success("Signed in successfully!");
             toast.success("Signed in successfully!");
         } catch (error) {
             toast.error(error.message);

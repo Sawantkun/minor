@@ -29,12 +29,13 @@ const Dashboard = () => {
   const [showPayPal, setShowPayPal] = useState(true);
   const [view, setView] = useState('directory');
   const [steps, setSteps] = useState(0);
-  const [verification, setVerification] = useState(true);
-  const [payment, setPayment] = useState(true);
+  const [verification, setVerification] = useState(userData?.isVerificationDone);
+  const [payment, setPayment] = useState(userData?.isPaymentDone);
   const [formField, setFormField] = useState({ degree: "" });
   const [selectedUserId, setSelectedUserId] = useState();
   const [jobData, setjobData] = useState()
   const [loading, setLoading] = useState(false);
+
 
   useEffect(() => {
     if (!userData?.uid) return;
@@ -54,6 +55,9 @@ const Dashboard = () => {
     };
     checkUserFile(userData?.uid);
   }, [userData?.uid]);
+
+  console.log(userData)
+
 
   const handlePayPal = () => {
     setShowPayPal(false);

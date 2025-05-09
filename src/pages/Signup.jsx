@@ -26,24 +26,21 @@ const SignUp = () => {
     });
 
     const navigate = useNavigate();
-    const { isAdmin, fetchAuthUser } = useAuth()
+    const { isAdminRef, fetchAuthUser } = useAuth()
 
     const handleGoogleSignUp = async () => {
         try {
             const userCredential = await signUpWithGoogle();
             const user = userCredential;
-            const userRef = doc(db, "users", user.uid);
-            const userDoc = await getDoc(userRef);
-            if (!userDoc.exists()) {
-                await setDoc(userRef, {
-                    name: user.displayName || "",
-                    email: user.email,
-                    isVerificationDone: "",
-                    isPaymentDone: false
-                });
-            }
+            const userRef = doc(db, "users", user?.uid)
+            await setDoc(userRef, {
+                name: user.displayName || "",
+                email: user.email,
+                isVerificationDone: "",
+                isPaymentDone: false
+            });
             await fetchAuthUser()
-            isAdmin ? navigate("/admin") : navigate("/dashboard");
+            isAdminRef.current ? navigate("/admin") : navigate("/dashboard");
             toast.success("Signed up with Google successfully!");
         } catch (error) {
             console.error("Google Sign-Up Error:", error);
@@ -80,7 +77,7 @@ const SignUp = () => {
                 isPaymentDone: false
             });
             await fetchAuthUser()
-            isAdmin ? navigate("/admin") : navigate("/dashboard");
+            isAdminRef.current ? navigate("/admin") : navigate("/dashboard");
             toast.success("Account created successfully!");
         } catch (error) {
             toast.error(error.message);
