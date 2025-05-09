@@ -11,6 +11,7 @@ import AddNotices from "../../components/AddNotices"
 import Profile from "../../components/Profile";
 import useAuth from "../../hooks/AuthContext";
 import userImg from "../../assets/svgs/avatar.png"
+import AdminEvents from "../../components/AdminEvents";
 
 const Dashboard = () => {
   const [view, setView] = useState("requests");
@@ -19,6 +20,7 @@ const Dashboard = () => {
   const buttons = [
     { label: "Requests", id: "requests", icon: DirectoryImg },
     { label: "Messages", id: "messages", icon: MessagesImg },
+    { label: "Event Requests", id: "events", icon: NoticeImg },
     { label: "Notices", id: "notices", icon: NoticeImg },
     { label: "Job Portal", id: "jobPortal", icon: JobsImg },
   ];
@@ -31,6 +33,8 @@ const Dashboard = () => {
         return <Messages />;
       case "notices":
         return <AddNotices />;
+      case "events":
+        return <AdminEvents />;
       case "jobPortal":
         return <JobPortal />;
       case 'profile':

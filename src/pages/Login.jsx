@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import logo from "../assets/googlelogo.png";
 import { toast } from 'react-toastify';
@@ -13,7 +13,6 @@ import Button from '../components/ui/button';
 import useAuth from '../hooks/AuthContext';
 
 const SignIn = () => {
-
     const [visibility, setVisibility] = useState(false);
     const [formField, setFormField] = useState({
         email: "",
@@ -22,7 +21,18 @@ const SignIn = () => {
     const [emailForReset, setEmailForReset] = useState("");
 
     const navigate = useNavigate();
-    const { isAdmin, fetchAuthUser } = useAuth()
+    const { userData, isAdmin, fetchAuthUser } = useAuth();
+
+    // Add effect to handle navigation after auth state is confirmed
+    useEffect(() => {
+        if (userData) {
+            if (isAdmin) {
+                navigate("/admin");
+            } else {
+                navigate("/dashboard");
+            }
+        }
+    }, [userData, isAdmin, navigate]);
 
     const handleGoogleSignIn = async () => {
         try {
@@ -38,12 +48,8 @@ const SignIn = () => {
                     isPaymentDone: false
                 });
             }
-            await fetchAuthUser()
-            if (isAdmin) {
-                navigate("/admin")
-            } else {
-                navigate("/dashboard")
-            }
+            // Only call fetchAuthUser, navigation will happen in the useEffect
+            await fetchAuthUser();
             toast.success("Login successful.");
         } catch (error) {
             console.error("Google sign-in error:", error);
@@ -59,9 +65,8 @@ const SignIn = () => {
         }
         try {
             await signInWithEmailAndPassword(auth, formField.email, formField.password);
-            await fetchAuthUser()
-            console.log("isAdmin", isAdmin)
-            isAdmin ? navigate("/admin") : navigate("/dashboard");
+            // Only call fetchAuthUser, navigation will happen in the useEffect
+            await fetchAuthUser();
             toast.success("Signed in successfully!");
         } catch (error) {
             toast.error(error.message);
@@ -76,7 +81,7 @@ const SignIn = () => {
         }
         try {
             await sendPasswordResetEmail(auth, emailForReset);
-            navigate("/Login")
+            navigate("/Login");
             toast.success("Password reset email sent. Please check your inbox.");
         } catch (error) {
             toast.error("Error sending password reset email: " + error.message);

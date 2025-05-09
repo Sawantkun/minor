@@ -10,9 +10,9 @@ export const AuthProvider = ({ children }) => {
   const [isAdmin, setIsAdmin] = useState(false);
   const [loading, setLoading] = useState(true);
 
-  const adminEmail = "kserh080888@gmail.com";
+  const adminEmail = "sawant@nusterai.com"; // Replace with your admin email
 
-  // 🔥 Function to fetch authenticated user
+  // Function to fetch authenticated user
   const fetchAuthUser = useCallback(async () => {
     setLoading(true);
     try {
@@ -20,12 +20,15 @@ export const AuthProvider = ({ children }) => {
       if (currentUser) {
         const userDoc = await getDoc(doc(db, "users", currentUser.uid));
         if (userDoc.exists()) {
-          const userData = userDoc.data();
-          setUserData({ ...currentUser, ...userData });
+          const userDataFromFirestore = userDoc.data();
+          setUserData({ ...currentUser, ...userDataFromFirestore });
         } else {
           setUserData({ ...currentUser });
         }
+
+        // Set admin status based on email
         setIsAdmin(currentUser.email === adminEmail);
+        console.log("Admin status set:", currentUser.email === adminEmail);
       } else {
         setUserData(null);
         setIsAdmin(false);
@@ -36,17 +39,36 @@ export const AuthProvider = ({ children }) => {
     setLoading(false);
   }, []);
 
-  console.log(userData)
+  // Debug logging
+  useEffect(() => {
+    if (userData) {
+      console.log("User data updated:", userData);
+      console.log("Is admin:", isAdmin);
+    }
+  }, [userData, isAdmin]);
 
   useEffect(() => {
-    const unsubscribe = onAuthStateChanged(auth, () => {
-      fetchAuthUser(); // 🔥 Call function when auth state changes
+    const unsubscribe = onAuthStateChanged(auth, (user) => {
+      if (user) {
+        console.log("Auth state changed - user found:", user.email);
+      } else {
+        console.log("Auth state changed - no user");
+      }
+      fetchAuthUser();
     });
+
     return () => unsubscribe();
   }, [fetchAuthUser]);
 
+  const value = {
+    userData,
+    isAdmin,
+    loading,
+    fetchAuthUser
+  };
+
   return (
-    <AuthContext.Provider value={{ userData, isAdmin, loading, fetchAuthUser }}>
+    <AuthContext.Provider value={value}>
       {children}
     </AuthContext.Provider>
   );
